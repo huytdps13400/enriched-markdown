@@ -27,6 +27,12 @@ static const CGFloat kENRMHeaderIconScale = 0.72;
 static const CGFloat kENRMHeaderSecondaryAlpha = 0.6;
 static const CGFloat kENRMHeaderDividerAlpha = 0.2;
 
+// TEMPORARY (showcase demo): extra vertical breathing room applied to the code
+// text only, above and below, without touching the header inset. Added to the
+// code text's top origin and to both measure paths so the height still matches
+// what is drawn. Revert to 0 (or delete) after the demo.
+static const CGFloat kENRMCodeExtraVerticalPad = 8;
+
 // Height geometry and code-run construction shared by the instance layout path
 // and the view-free measureHeightForCodeBlockNode:, so the two cannot drift.
 
@@ -259,7 +265,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 
   CGFloat horizontalPad = MAX(inset - borderW, 0);
   CGFloat contentWidth = MAX(_codeSize.width + horizontalPad * 2, frame.size.width);
-  _codeContentView.textOrigin = CGPointMake(horizontalPad, inset);
+  _codeContentView.textOrigin = CGPointMake(horizontalPad, inset + kENRMCodeExtraVerticalPad);
   _codeContentView.frame = CGRectMake(0, 0, contentWidth, frame.size.height);
 #if !TARGET_OS_OSX
   _scrollView.contentSize = CGSizeMake(contentWidth, frame.size.height);
@@ -378,7 +384,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 - (CGFloat)measureHeight:(CGFloat)maxWidth
 {
   CGFloat inset = [self contentInset];
-  return _codeSize.height + inset * 2 + [self headerHeight];
+  return _codeSize.height + inset * 2 + kENRMCodeExtraVerticalPad * 2 + [self headerHeight];
 }
 
 + (CGFloat)measureHeightForCodeBlockNode:(MarkdownASTNode *)node config:(StyleConfig *)config
@@ -386,7 +392,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
   CGFloat inset = ENRMCodeBlockContentInset(config);
   CGFloat headerH = inset + ENRMCodeBlockHeaderLabelLineHeight(ENRMCodeBlockHeaderFont(config));
   NSAttributedString *code = ENRMCodeBlockPlainAttributedCode(ENRMCodeBlockExtractCode(node), config);
-  return ENRMCodeBlockCodeSize(code).height + inset * 2 + headerH;
+  return ENRMCodeBlockCodeSize(code).height + inset * 2 + kENRMCodeExtraVerticalPad * 2 + headerH;
 }
 
 - (void)drawRect:(CGRect)rect

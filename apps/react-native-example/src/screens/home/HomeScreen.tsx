@@ -51,6 +51,13 @@ const SCREENS: ScreenItem[] = [
     testID: 'home-block-storybook',
     color: '#FF2D55',
   },
+  {
+    route: 'Showcase',
+    label: 'Showcase',
+    subtext: 'syntax-highlighted code blocks',
+    testID: 'home-block-showcase',
+    color: '#5856D6',
+  },
 ];
 
 export default function HomeScreen({ navigation }: Props) {
