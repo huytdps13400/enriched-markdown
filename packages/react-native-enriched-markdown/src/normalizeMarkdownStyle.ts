@@ -31,6 +31,39 @@ const getMonospaceFont = (): string =>
 
 const defaultTextColor = normalizeColor('#1F2937')!;
 
+const codeBlockTextColor = normalizeColor('#F3F4F6')!;
+
+const DEFAULT_CODE_BLOCK_SYNTAX_COLORS = {
+  keyword: normalizeColor('#CF222E')!,
+  operatorColor: codeBlockTextColor,
+  punctuation: codeBlockTextColor,
+  string: normalizeColor('#0A3069')!,
+  number: normalizeColor('#0550AE')!,
+  constant: normalizeColor('#0550AE')!,
+  comment: normalizeColor('#6E7781')!,
+  function: normalizeColor('#8250DF')!,
+  type: normalizeColor('#953800')!,
+  variable: codeBlockTextColor,
+  property: normalizeColor('#0550AE')!,
+  tag: normalizeColor('#116329')!,
+  attribute: normalizeColor('#0550AE')!,
+  embedded: codeBlockTextColor,
+};
+
+const INHERIT_SYNTAX_TOKENS = new Set([
+  'operatorColor',
+  'punctuation',
+  'variable',
+  'embedded',
+]);
+
+// The public API exposes `operator`, but the internal/native token is named
+// `operatorColor` because `operator` is a reserved word in the generated C++
+// struct. Map the public key onto the internal token when reading user input.
+const PUBLIC_SYNTAX_TOKEN_KEYS: Record<string, string> = {
+  operatorColor: 'operator',
+};
+
 // Explicit type annotation needed: Object.freeze breaks contextual typing, so
 // TypeScript widens literal 'auto' to `string` instead of `BlockTextAlign`.
 const baseHeader: {
@@ -130,7 +163,7 @@ const DEFAULT_NORMALIZED_STYLE = Object.freeze({
     fontSize: 14,
     fontFamily: getMonospaceFont(),
     fontWeight: '',
-    color: normalizeColor('#F3F4F6')!,
+    color: codeBlockTextColor,
     lineHeight: Platform.select({ ios: 20, android: 22, default: 22 })!,
     marginTop: 0,
     marginBottom: 16,
@@ -139,6 +172,7 @@ const DEFAULT_NORMALIZED_STYLE = Object.freeze({
     borderRadius: 8,
     borderWidth: 1,
     padding: 16,
+    syntaxColors: { ...DEFAULT_CODE_BLOCK_SYNTAX_COLORS },
   },
   link: {
     fontFamily: '',
@@ -322,6 +356,32 @@ export const normalizeMarkdownStyle = (
     (result.highlight as MarkdownStyleInternal['highlight']).color =
       paragraphColor;
   }
+
+  const codeBlock = result.codeBlock as MarkdownStyleInternal['codeBlock'];
+  const userSyntaxColors = style.codeBlock?.syntaxColors as
+    | Record<string, unknown>
+    | undefined;
+  const resolvedSyntaxColors: Record<string, unknown> = {};
+  for (const token in DEFAULT_CODE_BLOCK_SYNTAX_COLORS) {
+    const publicKey = PUBLIC_SYNTAX_TOKEN_KEYS[token] ?? token;
+    const userValue = userSyntaxColors?.[publicKey];
+    if (typeof userValue === 'string') {
+      resolvedSyntaxColors[token] =
+        normalizeColor(userValue) ??
+        DEFAULT_CODE_BLOCK_SYNTAX_COLORS[
+          token as keyof typeof DEFAULT_CODE_BLOCK_SYNTAX_COLORS
+        ];
+    } else if (INHERIT_SYNTAX_TOKENS.has(token)) {
+      resolvedSyntaxColors[token] = codeBlock.color;
+    } else {
+      resolvedSyntaxColors[token] =
+        DEFAULT_CODE_BLOCK_SYNTAX_COLORS[
+          token as keyof typeof DEFAULT_CODE_BLOCK_SYNTAX_COLORS
+        ];
+    }
+  }
+  (codeBlock as unknown as Record<string, unknown>).syntaxColors =
+    resolvedSyntaxColors;
 
   const finalResult = Object.freeze(result) as unknown as MarkdownStyleInternal;
   refCache.set(style, finalResult);

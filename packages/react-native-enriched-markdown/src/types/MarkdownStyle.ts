@@ -50,12 +50,38 @@ interface ListStyle extends BaseBlockStyle {
   itemSpacing?: number;
 }
 
+/**
+ * Per-token syntax highlight colors for fenced code blocks, keyed on the
+ * tree-sitter highlight token types. Any key omitted falls back to the default
+ * palette (Operator/Punctuation/Variable/Embedded inherit the code block's
+ * base `color`). Colors only take visible effect when the optional syntax
+ * highlighting module is compiled in; otherwise code blocks render uncolored.
+ */
+interface CodeBlockSyntaxColors {
+  keyword?: string;
+  /** Color for operator tokens (e.g. `+`, `=>`). */
+  operator?: string;
+  punctuation?: string;
+  string?: string;
+  number?: string;
+  constant?: string;
+  comment?: string;
+  function?: string;
+  type?: string;
+  variable?: string;
+  property?: string;
+  tag?: string;
+  attribute?: string;
+  embedded?: string;
+}
+
 interface CodeBlockStyle extends BaseBlockStyle {
   backgroundColor?: string;
   borderColor?: string;
   borderRadius?: number;
   borderWidth?: number;
   padding?: number;
+  syntaxColors?: CodeBlockSyntaxColors;
 }
 
 export interface LinkStyle {

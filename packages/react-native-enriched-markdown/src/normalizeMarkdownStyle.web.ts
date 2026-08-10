@@ -125,6 +125,22 @@ const DEFAULT_NORMALIZED_STYLE: MarkdownStyleInternal = Object.freeze({
     borderRadius: 8,
     borderWidth: 1,
     padding: 16,
+    syntaxColors: {
+      keyword: '#CF222E',
+      operatorColor: '#F3F4F6',
+      punctuation: '#F3F4F6',
+      string: '#0A3069',
+      number: '#0550AE',
+      constant: '#0550AE',
+      comment: '#6E7781',
+      function: '#8250DF',
+      type: '#953800',
+      variable: '#F3F4F6',
+      property: '#0550AE',
+      tag: '#116329',
+      attribute: '#0550AE',
+      embedded: '#F3F4F6',
+    },
   },
   link: {
     fontFamily: '',
@@ -292,6 +308,16 @@ export const normalizeMarkdownStyle = (
     ).color;
     (result.highlight as MarkdownStyleInternal['highlight']).color =
       paragraphColor;
+  }
+
+  // The public API exposes `operator`, but the internal token is `operatorColor`
+  // (`operator` is reserved in the generated C++ struct). Remap it after merge.
+  const syntaxColors = (
+    result.codeBlock as { syntaxColors?: Record<string, unknown> }
+  ).syntaxColors;
+  if (syntaxColors && 'operator' in syntaxColors) {
+    syntaxColors.operatorColor = syntaxColors.operator;
+    delete syntaxColors.operator;
   }
 
   const finalResult = Object.freeze(result) as unknown as MarkdownStyleInternal;
