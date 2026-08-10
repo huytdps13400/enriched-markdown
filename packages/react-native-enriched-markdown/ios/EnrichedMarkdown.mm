@@ -105,6 +105,9 @@ static char kENRMSegmentFadeAnimatorKey;
   BOOL _enableLinkPreview;
   BOOL _streamingAnimation;
   ENRMTableStreamingMode _tableStreamingMode;
+  ENRMCodeBlockStreamingMode _codeBlockStreamingMode;
+  // Trailing code block whose closing fence hasn't streamed in yet, if any.
+  ENRMCodeBlockSegment *_pendingCodeBlockSegment;
 
   size_t _renderedStyleFingerprint;
   size_t _pendingStyleFingerprint;
@@ -165,6 +168,7 @@ static char kENRMSegmentFadeAnimatorKey;
     _enableLinkPreview = YES;
     _streamingAnimation = NO;
     _tableStreamingMode = ENRMTableStreamingModeProgressive;
+    _codeBlockStreamingMode = ENRMCodeBlockStreamingModeProgressive;
     _selectionMenuConfig = (ENRMSelectionMenuConfig){.copyAsMarkdown = YES, .copyImageURL = YES};
     _lineBreakStrategy = NSLineBreakStrategyNone;
     _writingDirectionMode = ENRMWritingDirectionModeFirstStrong;
@@ -275,8 +279,11 @@ static char kENRMSegmentFadeAnimatorKey;
                             return view;
                           }
                           updateView:^(RCTUIView *view, ENRMRenderedSegment *segment) {
-                            [(ENRMCodeBlockContainerView *)view
-                                applyCodeBlockNode:segment.codeBlockSegment.codeBlockNode];
+                            EnrichedMarkdown *strongSelf = weakSelf;
+                            ENRMCodeBlockContainerView *codeBlockView = (ENRMCodeBlockContainerView *)view;
+                            codeBlockView.pending =
+                                strongSelf && segment.codeBlockSegment == strongSelf->_pendingCodeBlockSegment;
+                            [codeBlockView applyCodeBlockNode:segment.codeBlockSegment.codeBlockNode];
                           }]];
 
   _segmentViewRegistry = [[ENRMSegmentViewRegistry alloc] initWithHandlers:handlers];
@@ -560,17 +567,21 @@ static char kENRMSegmentFadeAnimatorKey;
   BOOL allowTrailingMargin = _allowTrailingMargin;
   BOOL streamingAnimation = _streamingAnimation;
   ENRMTableStreamingMode tableStreamingMode = _tableStreamingMode;
+  ENRMCodeBlockStreamingMode codeBlockStreamingMode = _codeBlockStreamingMode;
   NSLineBreakStrategy lineBreakStrategy = _lineBreakStrategy;
   ENRMWritingDirectionMode writingDirectionMode = _writingDirectionMode;
   NSWritingDirection resolvedLayoutDirection = _resolvedLayoutDirection;
 
   __block NSArray<ENRMRenderedSegment *> *renderedSegments = nil;
   __block NSString *renderableMarkdown = nil;
+  __block BOOL endsInsideOpenCodeFence = NO;
 
   [_renderCoordinator
       scheduleRender:^BOOL {
-        renderableMarkdown = streamingAnimation ? ENRMRenderableMarkdownForStreaming(markdownString, tableStreamingMode)
-                                                : markdownString;
+        renderableMarkdown = streamingAnimation
+                                 ? ENRMRenderableMarkdownForStreaming(markdownString, tableStreamingMode,
+                                                                      codeBlockStreamingMode, &endsInsideOpenCodeFence)
+                                 : markdownString;
 
         if (renderableMarkdown.length == 0) {
           renderedSegments = @[];
@@ -593,7 +604,9 @@ static char kENRMSegmentFadeAnimatorKey;
       }
       apply:^{
         self->_renderedStyleFingerprint = self->_pendingStyleFingerprint;
-        [self applyRenderedSegments:renderedSegments renderedMarkdown:renderableMarkdown];
+        [self applyRenderedSegments:renderedSegments
+                   renderedMarkdown:renderableMarkdown
+            endsInsideOpenCodeFence:endsInsideOpenCodeFence];
       }];
 }
 
@@ -630,8 +643,11 @@ static char kENRMSegmentFadeAnimatorKey;
 
   _renderCoordinator.blockAsyncRender = YES;
   _cachedMarkdown = [markdownString copy];
+  BOOL endsInsideOpenCodeFence = NO;
   NSString *renderableMarkdown =
-      _streamingAnimation ? ENRMRenderableMarkdownForStreaming(markdownString, _tableStreamingMode) : markdownString;
+      _streamingAnimation ? ENRMRenderableMarkdownForStreaming(markdownString, _tableStreamingMode,
+                                                               _codeBlockStreamingMode, &endsInsideOpenCodeFence)
+                          : markdownString;
   _renderedMarkdown = [renderableMarkdown copy];
   _renderedStyleFingerprint = _pendingStyleFingerprint;
 
@@ -644,6 +660,8 @@ static char kENRMSegmentFadeAnimatorKey;
     return;
   }
 
+  [self updatePendingCodeBlockSegment:endsInsideOpenCodeFence segments:renderedSegments];
+
   for (ENRMRenderedSegment *segment in renderedSegments) {
     RCTUIView *view = [_segmentViewRegistry createViewForSegment:segment];
     [_segmentViews addObject:view];
@@ -652,9 +670,24 @@ static char kENRMSegmentFadeAnimatorKey;
   }
 }
 
-- (void)applyRenderedSegments:(NSArray *)renderedSegments renderedMarkdown:(NSString *)renderedMarkdown
+- (void)updatePendingCodeBlockSegment:(BOOL)endsInsideOpenCodeFence segments:(NSArray<ENRMRenderedSegment *> *)segments
+{
+  _pendingCodeBlockSegment = nil;
+  if (!_streamingAnimation || !endsInsideOpenCodeFence) {
+    return;
+  }
+  ENRMRenderedSegment *last = segments.lastObject;
+  if (last.kind == ENRMSegmentKindCodeBlock) {
+    _pendingCodeBlockSegment = last.codeBlockSegment;
+  }
+}
+
+- (void)applyRenderedSegments:(NSArray *)renderedSegments
+             renderedMarkdown:(NSString *)renderedMarkdown
+      endsInsideOpenCodeFence:(BOOL)endsInsideOpenCodeFence
 {
   _renderedMarkdown = [renderedMarkdown copy];
+  [self updatePendingCodeBlockSegment:endsInsideOpenCodeFence segments:renderedSegments];
   BOOL segmentTopologyChanged = _streamingAnimation && [self renderedSegmentsChangeTopology:renderedSegments];
 
   ENRMSegmentReconciliationResult *result = [ENRMSegmentReconciler reconcileCurrentViews:_segmentViews
@@ -677,6 +710,15 @@ static char kENRMSegmentFadeAnimatorKey;
 
   _segmentViews = result.views;
   _segmentSignatures = result.signatures;
+
+  // A just-closed block has unchanged content, so the reconciler reuses it
+  // without an update; sync pending here to trigger its deferred highlight.
+  [_segmentViews enumerateObjectsUsingBlock:^(RCTUIView *segment, NSUInteger i, BOOL *stop) {
+    if ([segment isKindOfClass:[ENRMCodeBlockContainerView class]]) {
+      ((ENRMCodeBlockContainerView *)segment).pending =
+          self->_pendingCodeBlockSegment != nil && i == self->_segmentViews.count - 1;
+    }
+  }];
 
   if (self.bounds.size.width > 0) {
     [self setNeedsLayout];
@@ -811,6 +853,7 @@ static char kENRMSegmentFadeAnimatorKey;
       [strongSelf emitCopyPress:code language:language];
   };
 
+  codeBlockView.pending = codeBlockSegment == _pendingCodeBlockSegment;
   [codeBlockView applyCodeBlockNode:codeBlockSegment.codeBlockNode];
   return codeBlockView;
 }
@@ -954,6 +997,14 @@ static char kENRMSegmentFadeAnimatorKey;
     _dirtyFlags |= ENRMDirtyForceHeight | ENRMDirtyRender;
   }
 
+  if (newViewProps.streamingConfig.codeBlockMode != oldViewProps.streamingConfig.codeBlockMode) {
+    NSString *codeBlockModeStr =
+        [[NSString alloc] initWithUTF8String:newViewProps.streamingConfig.codeBlockMode.c_str()];
+    _codeBlockStreamingMode = [codeBlockModeStr isEqualToString:@"hidden"] ? ENRMCodeBlockStreamingModeHidden
+                                                                           : ENRMCodeBlockStreamingModeProgressive;
+    _dirtyFlags |= ENRMDirtyForceHeight | ENRMDirtyRender;
+  }
+
   if (ENRMContextMenuItemsChanged(oldViewProps.contextMenuItems, newViewProps.contextMenuItems)) {
     _contextMenuItemTexts = ENRMContextMenuTextsFromItems(newViewProps.contextMenuItems);
     _contextMenuItemIcons = ENRMContextMenuIconsFromItems(newViewProps.contextMenuItems);
@@ -1081,6 +1132,8 @@ static char kENRMSegmentFadeAnimatorKey;
   _allowTrailingMargin = NO;
   _streamingAnimation = NO;
   _tableStreamingMode = ENRMTableStreamingModeProgressive;
+  _codeBlockStreamingMode = ENRMCodeBlockStreamingModeProgressive;
+  _pendingCodeBlockSegment = nil;
   _lineBreakStrategy = NSLineBreakStrategyNone;
   _writingDirectionMode = ENRMWritingDirectionModeFirstStrong;
   _renderedStyleFingerprint = 0;

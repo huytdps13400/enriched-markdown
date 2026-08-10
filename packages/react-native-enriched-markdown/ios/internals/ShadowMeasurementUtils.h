@@ -88,8 +88,8 @@ static inline bool ENRMPropsNeedExactStreamingMeasurement(const PropsT &oldProps
 template <typename PropsT, typename ViewT>
 static inline Size
 ENRMMeasureMarkdownContent(const PropsT &typedProps, const std::shared_ptr<void> &componentViewRef, int receivedCounter,
-                           int &lastExactMeasurementCounter, MarkdownFlavor flavor, const LayoutContext &layoutContext,
-                           const LayoutConstraints &layoutConstraints,
+                           int &lastExactMeasurementCounter, CGSize &lastExactMeasurementSize, MarkdownFlavor flavor,
+                           const LayoutContext &layoutContext, const LayoutConstraints &layoutConstraints,
                            CGSize (^measureUncached)(ViewT *view, CGFloat maxWidth, CGFloat fontScale))
 {
   CGFloat maxWidth = layoutConstraints.maximumSize.width;
@@ -97,7 +97,14 @@ ENRMMeasureMarkdownContent(const PropsT &typedProps, const std::shared_ptr<void>
   RCTInternalGenericWeakWrapper *weakWrapper = (RCTInternalGenericWeakWrapper *)unwrapManagedObject(componentViewRef);
   ViewT *view = weakWrapper ? (ViewT *)weakWrapper.object : nil;
 
+  // Streaming fast path. Yoga re-measures several times per pass; the first call
+  // bumps lastExactMeasurementCounter, the rest land here. Return the freshly
+  // measured size, not the view's mailbox — mid-pass the frame isn't committed,
+  // so the mailbox is a generation stale and would freeze the height.
   if (typedProps.streamingAnimation && view && receivedCounter <= lastExactMeasurementCounter) {
+    if (lastExactMeasurementSize.width > 0 && lastExactMeasurementSize.height > 0) {
+      return ENRMClampMeasuredSize(lastExactMeasurementSize, layoutConstraints);
+    }
     CGSize currentSize = [view lastCommittedLayoutSize];
     if (currentSize.width > 0 && currentSize.height > 0) {
       return ENRMClampMeasuredSize(currentSize, layoutConstraints);
@@ -124,6 +131,7 @@ ENRMMeasureMarkdownContent(const PropsT &typedProps, const std::shared_ptr<void>
 
   if (typedProps.streamingAnimation) {
     lastExactMeasurementCounter = receivedCounter;
+    lastExactMeasurementSize = size;
   }
 
   return ENRMClampMeasuredSize(size, layoutConstraints);

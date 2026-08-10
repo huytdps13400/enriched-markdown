@@ -72,6 +72,18 @@ class CodeBlockContainerView(
   private var language: String? = null
   private var fenceChar: String = "`"
 
+  // True until the closing fence arrives: highlighting is deferred and copying
+  // is disabled, while the header stays visible.
+  var pending: Boolean = false
+    set(value) {
+      if (field == value) return
+      field = value
+      copyButton.isEnabled = !value
+      // The reconciler can reuse an unchanged block without re-applying the
+      // node, so re-derive here to pick up highlighting once the block closes.
+      rebuildCodeText()
+    }
+
   private val textView =
     AppCompatTextView(context).apply {
       includeFontPadding = false
@@ -85,10 +97,7 @@ class CodeBlockContainerView(
       setTextColor(codeBlockStyle.color)
       val horizontalPad = (inset - borderW).coerceAtLeast(0)
       setPadding(horizontalPad, inset, horizontalPad, inset)
-      setOnLongClickListener { view ->
-        showContextMenu(view)
-        true
-      }
+      setOnLongClickListener { view -> showContextMenu(view) }
     }
 
   private val scrollView =
@@ -145,10 +154,7 @@ class CodeBlockContainerView(
         }
       }
     isLongClickable = true
-    setOnLongClickListener { view ->
-      showContextMenu(view)
-      true
-    }
+    setOnLongClickListener { view -> showContextMenu(view) }
     addView(scrollView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
     addView(languageView, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     addView(copyButton, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
@@ -164,8 +170,15 @@ class CodeBlockContainerView(
       languageView.text = CodeBlockNode.displayLanguageName(newLanguage)
     }
 
+    rebuildCodeText()
+  }
+
+  // Highlighting is deferred while pending, applied once the block closes.
+  private fun rebuildCodeText() {
     val plainCode = buildCodeText(code, codeBlockStyle)
-    CodeBlockHighlighter.highlight(plainCode, code, language, codeBlockStyle)
+    if (!pending) {
+      CodeBlockHighlighter.highlight(plainCode, code, language, codeBlockStyle)
+    }
     textView.text = plainCode
   }
 
@@ -229,15 +242,19 @@ class CodeBlockContainerView(
     canvas.drawLine(borderWidth, y, width - borderWidth, y, dividerPaint)
   }
 
-  private fun showContextMenu(anchor: View) {
+  // Returns whether a menu was shown, so the long-press listener only consumes
+  // the event when there is one (a pending block has no menu yet).
+  private fun showContextMenu(anchor: View): Boolean {
+    if (pending) return false
     ContextMenuPopup.show(anchor, this) {
       item(ContextMenuPopup.Icon.COPY, copyLabel) { copyCode() }
       item(ContextMenuPopup.Icon.DOCUMENT, copyAsMarkdownLabel) { copyFencedMarkdown() }
     }
+    return true
   }
 
   private fun copyCode() {
-    if (code.isEmpty()) return
+    if (pending || code.isEmpty()) return
     copyToClipboard(code)
     onCopyPress?.invoke(code, language ?: "")
   }

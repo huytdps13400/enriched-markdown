@@ -175,6 +175,28 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
   _copyButton.accessibilityLabel = _copyLabel;
 }
 
+- (void)setPending:(BOOL)pending
+{
+  if (_pending == pending) {
+    return;
+  }
+  _pending = pending;
+  // Header stays visible while streaming; only copying is held back.
+  _copyButton.enabled = !pending;
+  // The reconciler can reuse an unchanged block without re-applying the node, so
+  // re-derive here to pick up highlighting once the block closes.
+  [self rebuildAttributedCode];
+#if !TARGET_OS_OSX
+  [self setNeedsLayout];
+  [self setNeedsDisplay];
+  [_codeContentView setNeedsDisplay];
+#else
+  self.needsLayout = YES;
+  [self setNeedsDisplay:YES];
+  [_codeContentView setNeedsDisplay:YES];
+#endif
+}
+
 - (instancetype)initWithConfig:(StyleConfig *)config
 {
   self = [super initWithFrame:CGRectZero];
@@ -317,6 +339,17 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 }
 #endif
 
+// Highlighting is deferred while pending, applied once the block closes.
+- (void)rebuildAttributedCode
+{
+  NSAttributedString *plainCode = [self plainAttributedCode];
+  NSAttributedString *highlighted =
+      _pending ? nil : ENRMHighlightedAttributedCode(plainCode, _cachedCode, _cachedLanguage, _config);
+  _attributedCode = highlighted ?: plainCode;
+  _codeSize = ENRMCodeBlockCodeSize(_attributedCode);
+  _codeContentView.attributedCode = _attributedCode;
+}
+
 - (void)applyCodeBlockNode:(MarkdownASTNode *)node
 {
   _cachedCode = ENRMCodeBlockExtractCode(node);
@@ -330,12 +363,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
     [self rebuildLanguageLabel];
   }
 
-  NSAttributedString *plainCode = [self plainAttributedCode];
-  NSAttributedString *highlighted = ENRMHighlightedAttributedCode(plainCode, _cachedCode, _cachedLanguage, _config);
-  _attributedCode = highlighted ?: plainCode;
-
-  _codeSize = ENRMCodeBlockCodeSize(_attributedCode);
-  _codeContentView.attributedCode = _attributedCode;
+  [self rebuildAttributedCode];
 
 #if !TARGET_OS_OSX
   [self setNeedsLayout];
@@ -458,6 +486,9 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 - (UIContextMenuConfiguration *)contextMenuInteraction:(UIContextMenuInteraction *)interaction
                         configurationForMenuAtLocation:(CGPoint)location
 {
+  if (_pending) {
+    return nil;
+  }
   return [UIContextMenuConfiguration
       configurationWithIdentifier:nil
                   previewProvider:nil
@@ -482,6 +513,9 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 #if TARGET_OS_OSX
 - (NSMenu *)buildContextMenu
 {
+  if (_pending) {
+    return nil;
+  }
   NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
   [menu addItem:ENRMCreateMenuItem(self.copyLabel, ^{ [self copyCodeToPasteboard]; })];
   [menu addItem:ENRMCreateMenuItem(self.copyAsMarkdownLabel, ^{ [self copyMarkdownToPasteboard]; })];
@@ -509,7 +543,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 // button subview from VoiceOver; expose the copy action explicitly instead.
 - (NSArray<UIAccessibilityCustomAction *> *)accessibilityCustomActions
 {
-  if (self.copyLabel.length == 0) {
+  if (_pending || self.copyLabel.length == 0) {
     return @[];
   }
   UIAccessibilityCustomAction *copyAction =
