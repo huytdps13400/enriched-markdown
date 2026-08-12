@@ -385,6 +385,15 @@ export interface NativeProps extends ViewProps {
    */
   onTaskListItemPress?: CodegenTypes.BubblingEventHandler<TaskListItemPressEvent>;
   /**
+   * Controls whether tapping a task list checkbox toggles its checked state.
+   *
+   * When `false`, the tap is fully inert: no visual toggle and no
+   * `onTaskListItemPress` emission. Text selection and links are unaffected.
+   *
+   * @default true
+   */
+  enableTaskListItemToggle?: CodegenTypes.WithDefault<boolean, true>;
+  /**
    * Callback fired when code is copied from a fenced code block's header copy
    * button, its long-press context-menu "Copy" action, or the VoiceOver copy
    * action. Receives the copied code and its language.
