@@ -2255,7 +2255,7 @@ PODS:
     - React-perflogger (= 0.81.4)
     - React-utils (= 0.81.4)
     - SocketRocket
-  - ReactNativeEnrichedMarkdown (1.0.0):
+  - ReactNativeEnrichedMarkdown (1.0.1):
     - boost
     - DoubleConversion
     - EnrichedMarkdownCore
@@ -2589,7 +2589,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 47d16ef8e69fcd212cc47939c59c4fbed78ea45d
   ReactCodegen: 28664236493f3cb37d877a76abece32bf5cf9da4
   ReactCommon: 7f3b3d118cf8a8aac89d1e66439310d2abef32f5
-  ReactNativeEnrichedMarkdown: d0f78a6fcb3cab5f84df4c5000f05545dd87e981
+  ReactNativeEnrichedMarkdown: 42bf51b82f6c758ec26c6f8b1cc987f65b531358
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 4e7825418aa0a50bdaa8dff6d3e5fa8a2994d308
 
