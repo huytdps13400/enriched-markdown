@@ -161,7 +161,7 @@ static BOOL ENRMColorIsDark(RCTUIColor *color)
 }
 #endif
 
-- (void)setAttributedCode:(NSAttributedString *)attributedCode
+- (void)setAttributedCode:(nullable NSAttributedString *)attributedCode
 {
   _attributedCode = attributedCode;
   if (attributedCode.length == 0) {
