@@ -19,6 +19,10 @@ sealed interface MarkdownSegment {
   data class CodeBlock(
     val node: MarkdownASTNode,
   ) : MarkdownSegment
+
+  data class Blockquote(
+    val node: MarkdownASTNode,
+  ) : MarkdownSegment
 }
 
 fun splitASTIntoSegments(root: MarkdownASTNode): List<MarkdownSegment> {
@@ -53,6 +57,11 @@ fun splitASTIntoSegments(root: MarkdownASTNode): List<MarkdownSegment> {
       MarkdownASTNode.NodeType.CodeBlock -> {
         flushTextNodes()
         segments.add(MarkdownSegment.CodeBlock(child))
+      }
+
+      MarkdownASTNode.NodeType.Blockquote -> {
+        flushTextNodes()
+        segments.add(MarkdownSegment.Blockquote(child))
       }
 
       else -> {

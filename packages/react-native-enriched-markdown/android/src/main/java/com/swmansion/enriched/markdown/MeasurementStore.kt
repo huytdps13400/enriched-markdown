@@ -32,6 +32,7 @@ import com.swmansion.enriched.markdown.utils.common.getStringOrDefault
 import com.swmansion.enriched.markdown.utils.common.parseImageRequestHeaders
 import com.swmansion.enriched.markdown.utils.common.splitASTIntoSegments
 import com.swmansion.enriched.markdown.utils.text.extensions.replaceMathSpansWithPlaceholders
+import com.swmansion.enriched.markdown.views.BlockquoteContainerView
 import com.swmansion.enriched.markdown.views.CodeBlockContainerView
 import com.swmansion.enriched.markdown.views.TableContainerView
 import java.util.concurrent.ConcurrentHashMap
@@ -502,6 +503,15 @@ object MeasurementStore {
             maxContentWidthPx = width
             if (includeBottomMargin) {
               totalHeightPx += style.codeBlockStyle.marginBottom
+            }
+          }
+
+          is RenderedSegment.Blockquote -> {
+            totalHeightPx += style.blockquoteStyle.marginTop
+            totalHeightPx += BlockquoteContainerView.measureBlockquoteNodeHeight(segment.node, style, context, width)
+            maxContentWidthPx = width
+            if (includeBottomMargin) {
+              totalHeightPx += style.blockquoteStyle.marginBottom
             }
           }
         }

@@ -6,7 +6,9 @@ import android.text.SpannableStringBuilder
 import com.swmansion.enriched.markdown.parser.MarkdownASTNode
 import com.swmansion.enriched.markdown.spans.ImageSpan
 import com.swmansion.enriched.markdown.spans.MarginBottomSpan
+import com.swmansion.enriched.markdown.styles.BlockquoteStyle
 import com.swmansion.enriched.markdown.styles.StyleConfig
+import com.swmansion.enriched.markdown.utils.text.span.applyLineHeightSkippingImages
 
 class Renderer {
   private var cachedFactory: RendererFactory? = null
@@ -54,6 +56,51 @@ class Renderer {
 
     // Flush deferred spans (e.g. BaselineShiftSpan) after all block-level spans are set.
     // See BaselineShiftRenderer for context and the proper long-term fix.
+    factory.flushDeferredSpans(builder)
+
+    return SpannableString(builder)
+  }
+
+  /**
+   * Renders a blockquote's own content (the nodes left after nested quotes, code
+   * blocks and other block segments have been split out) styled as blockquote
+   * text: the blockquote block style is pushed so text picks up the quote's
+   * font/color and paragraphs render tight (isInsideBlockElement), matching the
+   * commonmark BlockquoteRenderer. It applies the quote's line height but draws no
+   * border/background/padding - the BlockquoteContainerView draws the box.
+   */
+  fun renderBlockquoteContent(
+    nodes: List<MarkdownASTNode>,
+    blockquoteStyle: BlockquoteStyle,
+    onLinkPress: ((String) -> Unit)? = null,
+    onLinkLongPress: ((String) -> Unit)? = null,
+  ): SpannableString {
+    val factory =
+      requireNotNull(cachedFactory) {
+        "Renderer must be configured with a style before calling renderBlockquoteContent."
+      }
+
+    factory.resetForNewRender()
+    collectedImageSpans.clear()
+    lastElementMarginBottom = 0f
+
+    val builder = SpannableStringBuilder()
+    val document = MarkdownASTNode(type = MarkdownASTNode.NodeType.Document, children = nodes)
+    val context = factory.blockStyleContext
+
+    context.blockquoteDepth += 1
+    context.setBlockquoteStyle(blockquoteStyle)
+    try {
+      renderNode(document, builder, onLinkPress, onLinkLongPress, factory)
+    } finally {
+      context.popBlockStyle()
+      context.blockquoteDepth -= 1
+    }
+
+    removeTrailingMargin(builder)
+    if (builder.isNotEmpty()) {
+      applyLineHeightSkippingImages(builder, 0, builder.length, blockquoteStyle.lineHeight)
+    }
     factory.flushDeferredSpans(builder)
 
     return SpannableString(builder)

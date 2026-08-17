@@ -5,6 +5,7 @@ import android.text.SpannableString
 import com.swmansion.enriched.markdown.parser.MarkdownASTNode
 import com.swmansion.enriched.markdown.renderer.Renderer
 import com.swmansion.enriched.markdown.spans.ImageSpan
+import com.swmansion.enriched.markdown.styles.BlockquoteStyle
 import com.swmansion.enriched.markdown.styles.StyleConfig
 
 sealed interface RenderedSegment {
@@ -32,6 +33,11 @@ sealed interface RenderedSegment {
     val node: MarkdownASTNode,
     override val signature: Long,
   ) : RenderedSegment
+
+  data class Blockquote(
+    val node: MarkdownASTNode,
+    override val signature: Long,
+  ) : RenderedSegment
 }
 
 object MarkdownSegmentRenderer {
@@ -41,11 +47,12 @@ object MarkdownSegmentRenderer {
     context: Context,
     onLinkPress: ((String) -> Unit)?,
     onLinkLongPress: ((String) -> Unit)?,
+    blockquoteStyle: BlockquoteStyle? = null,
   ): List<RenderedSegment> =
     segments.map { segment ->
       when (segment) {
         is MarkdownSegment.Text -> {
-          renderTextSegment(segment.nodes, style, context, onLinkPress, onLinkLongPress)
+          renderTextSegment(segment.nodes, style, context, onLinkPress, onLinkLongPress, blockquoteStyle)
         }
 
         is MarkdownSegment.Table -> {
@@ -63,6 +70,11 @@ object MarkdownSegmentRenderer {
           val signature = SegmentSignature.signatureForNode(segment.node) xor SegmentSignature.CODE_BLOCK_KIND_SALT
           RenderedSegment.CodeBlock(segment.node, signature)
         }
+
+        is MarkdownSegment.Blockquote -> {
+          val signature = SegmentSignature.signatureForNode(segment.node) xor SegmentSignature.BLOCKQUOTE_KIND_SALT
+          RenderedSegment.Blockquote(segment.node, signature)
+        }
       }
     }
 
@@ -72,13 +84,21 @@ object MarkdownSegmentRenderer {
     context: Context,
     onLinkPress: ((String) -> Unit)?,
     onLinkLongPress: ((String) -> Unit)?,
+    blockquoteStyle: BlockquoteStyle?,
   ): RenderedSegment.Text {
-    val documentWrapper = MarkdownASTNode(type = MarkdownASTNode.NodeType.Document, children = nodes)
     val renderer = Renderer().apply { configure(style, context) }
     val signature = SegmentSignature.signatureForNodes(nodes) xor SegmentSignature.TEXT_KIND_SALT
 
+    val styledText =
+      if (blockquoteStyle != null) {
+        renderer.renderBlockquoteContent(nodes, blockquoteStyle, onLinkPress, onLinkLongPress)
+      } else {
+        val documentWrapper = MarkdownASTNode(type = MarkdownASTNode.NodeType.Document, children = nodes)
+        renderer.renderDocument(documentWrapper, onLinkPress, onLinkLongPress)
+      }
+
     return RenderedSegment.Text(
-      styledText = renderer.renderDocument(documentWrapper, onLinkPress, onLinkLongPress),
+      styledText = styledText,
       imageSpans = renderer.getCollectedImageSpans().toList(),
       needsJustify = style.needsJustify,
       lastElementMarginBottom = renderer.getLastElementMarginBottom(),
