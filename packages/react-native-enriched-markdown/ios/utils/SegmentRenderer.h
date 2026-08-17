@@ -12,10 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
-NSArray<ENRMRenderedSegment *> *ENRMRenderSegmentsFromAST(MarkdownASTNode *ast, StyleConfig *config,
-                                                          BOOL allowTrailingMargin, BOOL allowFontScaling,
-                                                          CGFloat maxFontSizeMultiplier,
-                                                          NSLineBreakStrategy lineBreakStrategy);
+// blockquoteContent = YES when splitting a blockquote's own children (called by
+// ENRMBlockquoteContainerView): text segments are then rendered with blockquote styling
+// (tight paragraphs, quote font/color/line height) instead of paragraph styling.
+NSArray<ENRMRenderedSegment *> *
+ENRMRenderSegmentsFromAST(MarkdownASTNode *ast, StyleConfig *config, BOOL allowTrailingMargin, BOOL allowFontScaling,
+                          CGFloat maxFontSizeMultiplier, NSLineBreakStrategy lineBreakStrategy, BOOL blockquoteContent);
 
 #ifdef __cplusplus
 }

@@ -18,6 +18,7 @@
 #if ENRICHED_MARKDOWN_MATH
 #import "ENRMMathContainerView.h"
 #endif
+#import "ENRMBlockquoteContainerView.h"
 #import "ENRMCodeBlockContainerView.h"
 #import "ENRMSpoilerCapable.h"
 #import "ENRMSpoilerOverlayView.h"
@@ -288,7 +289,47 @@ static char kENRMSegmentFadeAnimatorKey;
                             [codeBlockView applyCodeBlockNode:segment.codeBlockSegment.codeBlockNode];
                           }]];
 
+  [handlers addObject:[ENRMSegmentViewHandler handlerWithKind:ENRMSegmentKindBlockquote
+                          matchesView:^BOOL(RCTUIView *view, ENRMRenderedSegment *segment) {
+                            return [view isKindOfClass:[ENRMBlockquoteContainerView class]];
+                          }
+                          createView:^RCTUIView *(ENRMRenderedSegment *segment) {
+                            EnrichedMarkdown *strongSelf = weakSelf;
+                            if (!strongSelf) {
+                              return [[RCTUIView alloc] init];
+                            }
+
+                            ENRMBlockquoteContainerView *view =
+                                [strongSelf createBlockquoteViewForSegment:segment.blockquoteSegment];
+                            [strongSelf animateBlockViewIfNeeded:view];
+                            return view;
+                          }
+                          updateView:^(RCTUIView *view, ENRMRenderedSegment *segment) {
+                            [(ENRMBlockquoteContainerView *)view
+                                applyBlockquoteNode:segment.blockquoteSegment.blockquoteNode];
+                          }]];
+
   _segmentViewRegistry = [[ENRMSegmentViewRegistry alloc] initWithHandlers:handlers];
+}
+
+- (ENRMBlockquoteContainerView *)createBlockquoteViewForSegment:(ENRMBlockquoteSegment *)blockquoteSegment
+{
+  ENRMBlockquoteContainerView *view = [[ENRMBlockquoteContainerView alloc] initWithConfig:_config];
+
+  __weak EnrichedMarkdown *weakSelf = self;
+  view.onLinkPress = ^(NSString *url) {
+    EnrichedMarkdown *strongSelf = weakSelf;
+    if (strongSelf && url)
+      [strongSelf emitLinkPress:url];
+  };
+  view.onLinkLongPress = ^(NSString *url) {
+    EnrichedMarkdown *strongSelf = weakSelf;
+    if (strongSelf && url)
+      [strongSelf emitLinkLongPress:url];
+  };
+
+  [view applyBlockquoteNode:blockquoteSegment.blockquoteNode];
+  return view;
 }
 
 - (CGSize)computeSegmentLayoutForWidth:(CGFloat)width applyFrames:(BOOL)applyFrames
@@ -353,6 +394,10 @@ static char kENRMSegmentFadeAnimatorKey;
       yOffset += _config.codeBlockMarginTop;
       segmentHeight = [(ENRMCodeBlockContainerView *)segment measureHeight:width];
       maxContentWidth = width;
+    } else if ([segment isKindOfClass:[ENRMBlockquoteContainerView class]]) {
+      yOffset += _config.blockquoteMarginTop;
+      segmentHeight = [(ENRMBlockquoteContainerView *)segment measureHeight:width];
+      maxContentWidth = width;
     }
 
     if (applyFrames) {
@@ -390,6 +435,8 @@ static char kENRMSegmentFadeAnimatorKey;
 #endif
     else if ([segment isKindOfClass:[ENRMCodeBlockContainerView class]] && shouldAddBottomMargin) {
       yOffset += _config.codeBlockMarginBottom;
+    } else if ([segment isKindOfClass:[ENRMBlockquoteContainerView class]] && shouldAddBottomMargin) {
+      yOffset += _config.blockquoteMarginBottom;
     }
   }];
 
@@ -595,7 +642,8 @@ static char kENRMSegmentFadeAnimatorKey;
           return NO;
 
         renderedSegments = ENRMRenderSegmentsFromAST(ast, config, allowTrailingMargin, allowFontScaling,
-                                                     maxFontSizeMultiplier, lineBreakStrategy);
+                                                     maxFontSizeMultiplier, lineBreakStrategy,
+                                                     /*blockquoteContent*/ NO);
         for (ENRMRenderedSegment *segment in renderedSegments) {
           if (segment.kind == ENRMSegmentKindText && segment.textResult) {
             ENRMApplyWritingDirectionMode(segment.textResult.attributedText, writingDirectionMode,
@@ -621,7 +669,7 @@ static char kENRMSegmentFadeAnimatorKey;
 
   NSArray<ENRMRenderedSegment *> *segments =
       ENRMRenderSegmentsFromAST(ast, _config, _allowTrailingMargin, _fontScaleObserver.allowFontScaling,
-                                _maxFontSizeMultiplier, _lineBreakStrategy);
+                                _maxFontSizeMultiplier, _lineBreakStrategy, /*blockquoteContent*/ NO);
   for (ENRMRenderedSegment *segment in segments) {
     if (segment.kind == ENRMSegmentKindText && segment.textResult) {
       ENRMApplyWritingDirectionMode(segment.textResult.attributedText, _writingDirectionMode, _resolvedLayoutDirection);

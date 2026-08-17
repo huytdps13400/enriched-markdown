@@ -34,12 +34,29 @@
  */
 - (NSMutableAttributedString *)renderRoot:(MarkdownASTNode *)root context:(RenderContext *)context
 {
+  return [self renderRoot:root context:context asBlockquoteContent:NO];
+}
+
+- (NSMutableAttributedString *)renderRoot:(MarkdownASTNode *)root
+                                  context:(RenderContext *)context
+                      asBlockquoteContent:(BOOL)asBlockquoteContent
+{
   if (!root)
     return [[NSMutableAttributedString alloc] init];
 
   // 1. Establish the global baseline style.
   // This ensures that leaf nodes (like Text) have valid attributes if they appear at the root.
-  [context setBlockStyle:BlockTypeParagraph font:_config.paragraphFont color:_config.paragraphColor headingLevel:0];
+  // A blockquote's own content uses the blockquote baseline so its paragraphs render tight and
+  // pick up the quote's font/color (currentBlockType == Blockquote), mirroring commonmark.
+  if (asBlockquoteContent) {
+    context.blockquoteDepth = context.blockquoteDepth + 1;
+    [context setBlockStyle:BlockTypeBlockquote
+                      font:_config.blockquoteFont
+                     color:_config.blockquoteColor
+              headingLevel:0];
+  } else {
+    [context setBlockStyle:BlockTypeParagraph font:_config.paragraphFont color:_config.paragraphColor headingLevel:0];
+  }
 
   NSMutableAttributedString *output = [[NSMutableAttributedString alloc] init];
 
