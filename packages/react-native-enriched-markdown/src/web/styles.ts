@@ -125,7 +125,7 @@ function blockquoteStyle(style: MarkdownStyleInternal): CSSProperties {
     marginBottom: blockquote.marginBottom,
     marginInlineStart: 0, // reset UA default (40px in LTR, auto in RTL)
     marginInlineEnd: 0,
-    paddingInlineStart: blockquote.gapWidth,
+    paddingInlineStart: blockquote.gapWidth + blockquote.padding,
     paddingInlineEnd: blockquote.padding,
     paddingTop: blockquote.padding,
     paddingBottom: blockquote.padding,
