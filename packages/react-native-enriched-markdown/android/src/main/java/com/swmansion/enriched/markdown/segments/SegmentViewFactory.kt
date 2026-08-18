@@ -1,7 +1,6 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.view.View
-import com.swmansion.enriched.markdown.utils.common.RenderedSegment
 
 /**
  * Per-kind view work seam used by ContainerNodeView to build and reconcile

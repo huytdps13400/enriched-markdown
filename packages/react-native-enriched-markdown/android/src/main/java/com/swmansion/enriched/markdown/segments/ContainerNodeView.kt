@@ -1,10 +1,8 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
-import com.swmansion.enriched.markdown.utils.common.RenderedSegment
-import com.swmansion.enriched.markdown.utils.common.SegmentReconciler
 import kotlin.math.ceil
 import kotlin.math.max
 

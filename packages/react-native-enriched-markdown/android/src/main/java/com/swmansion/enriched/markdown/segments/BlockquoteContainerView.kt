@@ -1,4 +1,4 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.content.Context
 import android.graphics.Canvas
@@ -13,9 +13,6 @@ import com.swmansion.enriched.markdown.parser.MarkdownASTNode
 import com.swmansion.enriched.markdown.styles.BlockquoteStyle
 import com.swmansion.enriched.markdown.styles.StyleConfig
 import com.swmansion.enriched.markdown.utils.common.BreakStrategyUtils
-import com.swmansion.enriched.markdown.utils.common.MarkdownSegmentRenderer
-import com.swmansion.enriched.markdown.utils.common.RenderedSegment
-import com.swmansion.enriched.markdown.utils.common.splitASTIntoSegments
 import kotlin.math.ceil
 
 /**

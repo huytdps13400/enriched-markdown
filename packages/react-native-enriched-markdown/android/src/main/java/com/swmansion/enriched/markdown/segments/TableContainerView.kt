@@ -1,4 +1,4 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.content.ClipData
 import android.content.ClipboardManager

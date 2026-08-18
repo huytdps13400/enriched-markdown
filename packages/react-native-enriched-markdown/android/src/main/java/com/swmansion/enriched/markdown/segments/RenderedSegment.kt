@@ -1,4 +1,4 @@
-package com.swmansion.enriched.markdown.utils.common
+package com.swmansion.enriched.markdown.segments
 
 import android.content.Context
 import android.text.SpannableString

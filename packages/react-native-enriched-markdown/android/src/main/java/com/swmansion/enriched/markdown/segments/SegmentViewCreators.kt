@@ -1,4 +1,4 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.content.Context
 import android.os.Build
@@ -11,7 +11,6 @@ import com.swmansion.enriched.markdown.accessibility.AccessibilityLabels
 import com.swmansion.enriched.markdown.styles.StyleConfig
 import com.swmansion.enriched.markdown.utils.common.BreakStrategyUtils
 import com.swmansion.enriched.markdown.utils.common.FeatureFlags
-import com.swmansion.enriched.markdown.utils.common.RenderedSegment
 import com.swmansion.enriched.markdown.utils.text.view.SelectionMenuConfig
 import com.swmansion.enriched.markdown.utils.text.view.applySelectionColors
 
@@ -122,7 +121,7 @@ object SegmentViewCreators {
 
   fun mathContainerClass(): Class<*>? =
     try {
-      Class.forName("com.swmansion.enriched.markdown.views.MathContainerView")
+      Class.forName("com.swmansion.enriched.markdown.segments.MathContainerView")
     } catch (_: Exception) {
       null
     }

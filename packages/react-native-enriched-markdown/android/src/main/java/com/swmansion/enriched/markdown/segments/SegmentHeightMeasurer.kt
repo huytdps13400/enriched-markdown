@@ -1,4 +1,4 @@
-package com.swmansion.enriched.markdown.views
+package com.swmansion.enriched.markdown.segments
 
 import android.content.Context
 import android.graphics.Paint
@@ -7,7 +7,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.swmansion.enriched.markdown.styles.StyleConfig
-import com.swmansion.enriched.markdown.utils.common.RenderedSegment
 import com.swmansion.enriched.markdown.utils.text.extensions.replaceMathSpansWithPlaceholders
 import kotlin.math.ceil
 
