@@ -1,18 +1,19 @@
 #import <Foundation/Foundation.h>
 
+@class ENRMBlockquoteTextRenderer;
 @class MarkdownASTNode;
 @class RenderContext;
 
 @interface AttributedRenderer : NSObject
 - (instancetype)initWithConfig:(id)config;
-- (NSMutableAttributedString *)renderRoot:(MarkdownASTNode *)root context:(RenderContext *)context;
-// Renders a blockquote's own content (the nodes left after nested quotes/code blocks are split
-// out) with a blockquote baseline block style instead of paragraph: text picks up the quote's
-// font/color and paragraphs render tight (no paragraph margins), matching the commonmark path.
-// It draws no box; the ENRMBlockquoteContainerView draws the border/background/padding.
-- (NSMutableAttributedString *)renderRoot:(MarkdownASTNode *)root
-                                  context:(RenderContext *)context
-                      asBlockquoteContent:(BOOL)asBlockquoteContent;
+// Renders a flat list of sibling nodes into an attributed string: sets the baseline block style,
+// walks each node, and trims the trailing block margin. Pass a non-nil block to render the nodes as
+// a blockquote's own content (blockquote baseline + the quote's line height applied over the run);
+// it draws no box - the ENRMBlockquoteContainerView draws the border/background/padding. See
+// ENRMBlockquoteTextRenderer.
+- (NSMutableAttributedString *)renderNodes:(NSArray<MarkdownASTNode *> *)nodes
+                                   context:(RenderContext *)context
+                                     block:(nullable ENRMBlockquoteTextRenderer *)block;
 - (CGFloat)getLastElementMarginBottom;
 - (void)setAllowTrailingMargin:(BOOL)allow;
 @end

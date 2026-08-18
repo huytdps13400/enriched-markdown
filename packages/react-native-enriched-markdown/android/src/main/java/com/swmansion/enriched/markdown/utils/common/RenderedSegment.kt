@@ -3,6 +3,7 @@ package com.swmansion.enriched.markdown.utils.common
 import android.content.Context
 import android.text.SpannableString
 import com.swmansion.enriched.markdown.parser.MarkdownASTNode
+import com.swmansion.enriched.markdown.renderer.BlockquoteTextRenderer
 import com.swmansion.enriched.markdown.renderer.Renderer
 import com.swmansion.enriched.markdown.spans.ImageSpan
 import com.swmansion.enriched.markdown.styles.BlockquoteStyle
@@ -91,10 +92,9 @@ object MarkdownSegmentRenderer {
 
     val styledText =
       if (blockquoteStyle != null) {
-        renderer.renderBlockquoteContent(nodes, blockquoteStyle, onLinkPress, onLinkLongPress)
+        BlockquoteTextRenderer(blockquoteStyle).render(renderer, nodes, onLinkPress, onLinkLongPress)
       } else {
-        val documentWrapper = MarkdownASTNode(type = MarkdownASTNode.NodeType.Document, children = nodes)
-        renderer.renderDocument(documentWrapper, onLinkPress, onLinkLongPress)
+        renderer.renderContent(nodes, onLinkPress, onLinkLongPress)
       }
 
     return RenderedSegment.Text(

@@ -1,8 +1,7 @@
 #import "ENRMTextRenderer.h"
 #import "AccessibilityInfo.h"
 #import "AttributedRenderer.h"
-#import "MarkdownASTNode.h"
-#import "ParagraphStyleUtils.h"
+#import "ENRMBlockquoteTextRenderer.h"
 #import "RenderContext.h"
 #import "StyleConfig.h"
 
@@ -12,13 +11,8 @@
 static ENRMRenderResult *ENRMRenderASTNodesCore(NSArray<MarkdownASTNode *> *nodes, StyleConfig *config,
                                                 BOOL allowTrailingMargin, BOOL allowFontScaling,
                                                 CGFloat maxFontSizeMultiplier, NSLineBreakStrategy lineBreakStrategy,
-                                                BOOL asBlockquoteContent)
+                                                ENRMBlockquoteTextRenderer *block)
 {
-  MarkdownASTNode *root = [[MarkdownASTNode alloc] initWithType:MarkdownNodeTypeDocument];
-  for (MarkdownASTNode *node in nodes) {
-    [root addChild:node];
-  }
-
   AttributedRenderer *renderer = [[AttributedRenderer alloc] initWithConfig:config];
   [renderer setAllowTrailingMargin:allowTrailingMargin];
 
@@ -26,15 +20,7 @@ static ENRMRenderResult *ENRMRenderASTNodesCore(NSArray<MarkdownASTNode *> *node
   context.allowFontScaling = allowFontScaling;
   context.maxFontSizeMultiplier = maxFontSizeMultiplier;
 
-  NSMutableAttributedString *attributedText = [renderer renderRoot:root
-                                                           context:context
-                                               asBlockquoteContent:asBlockquoteContent];
-
-  // Paragraphs apply the paragraph line height regardless of block type; a quote's own line
-  // height is stamped over the whole run here, matching Renderer.renderBlockquoteContent on Android.
-  if (asBlockquoteContent && attributedText.length > 0) {
-    applyLineHeight(attributedText, NSMakeRange(0, attributedText.length), [config blockquoteLineHeight]);
-  }
+  NSMutableAttributedString *attributedText = [renderer renderNodes:nodes context:context block:block];
 
   [context applyLinkAttributesToString:attributedText];
   ENRMApplyLineBreakStrategyToParagraphStyles(attributedText, lineBreakStrategy);
@@ -52,13 +38,14 @@ ENRMRenderResult *ENRMRenderASTNodes(NSArray<MarkdownASTNode *> *nodes, StyleCon
                                      NSLineBreakStrategy lineBreakStrategy)
 {
   return ENRMRenderASTNodesCore(nodes, config, allowTrailingMargin, allowFontScaling, maxFontSizeMultiplier,
-                                lineBreakStrategy, /*asBlockquoteContent*/ NO);
+                                lineBreakStrategy, /*block*/ nil);
 }
 
 ENRMRenderResult *ENRMRenderBlockquoteContentNodes(NSArray<MarkdownASTNode *> *nodes, StyleConfig *config,
                                                    BOOL allowFontScaling, CGFloat maxFontSizeMultiplier,
                                                    NSLineBreakStrategy lineBreakStrategy)
 {
+  ENRMBlockquoteTextRenderer *block = [[ENRMBlockquoteTextRenderer alloc] initWithConfig:config];
   return ENRMRenderASTNodesCore(nodes, config, /*allowTrailingMargin*/ NO, allowFontScaling, maxFontSizeMultiplier,
-                                lineBreakStrategy, /*asBlockquoteContent*/ YES);
+                                lineBreakStrategy, block);
 }

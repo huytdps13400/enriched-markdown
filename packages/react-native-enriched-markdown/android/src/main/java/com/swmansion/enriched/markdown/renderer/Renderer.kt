@@ -6,9 +6,7 @@ import android.text.SpannableStringBuilder
 import com.swmansion.enriched.markdown.parser.MarkdownASTNode
 import com.swmansion.enriched.markdown.spans.ImageSpan
 import com.swmansion.enriched.markdown.spans.MarginBottomSpan
-import com.swmansion.enriched.markdown.styles.BlockquoteStyle
 import com.swmansion.enriched.markdown.styles.StyleConfig
-import com.swmansion.enriched.markdown.utils.text.span.applyLineHeightSkippingImages
 
 class Renderer {
   private var cachedFactory: RendererFactory? = null
@@ -37,47 +35,29 @@ class Renderer {
     document: MarkdownASTNode,
     onLinkPress: ((String) -> Unit)? = null,
     onLinkLongPress: ((String) -> Unit)? = null,
-  ): SpannableString {
-    val factory =
-      requireNotNull(cachedFactory) {
-        "Renderer must be configured with a style before calling renderDocument."
-      }
-
-    factory.resetForNewRender()
-    collectedImageSpans.clear()
-    lastElementMarginBottom = 0f
-
-    val builder = SpannableStringBuilder()
-
-    renderNode(document, builder, onLinkPress, onLinkLongPress, factory)
-
-    // Remove trailing margin from last block element
-    removeTrailingMargin(builder)
-
-    // Flush deferred spans (e.g. BaselineShiftSpan) after all block-level spans are set.
-    // See BaselineShiftRenderer for context and the proper long-term fix.
-    factory.flushDeferredSpans(builder)
-
-    return SpannableString(builder)
-  }
+  ): SpannableString = renderContent(document.children, onLinkPress, onLinkLongPress)
 
   /**
-   * Renders a blockquote's own content (the nodes left after nested quotes, code
-   * blocks and other block segments have been split out) styled as blockquote
-   * text: the blockquote block style is pushed so text picks up the quote's
-   * font/color and paragraphs render tight (isInsideBlockElement), matching the
-   * commonmark BlockquoteRenderer. It applies the quote's line height but draws no
-   * border/background/padding - the BlockquoteContainerView draws the box.
+   * Renders a flat list of sibling nodes into a standalone SpannableString. This
+   * is the generic envelope shared by the document and block-segment paths: reset
+   * the factory, build the spannable, trim the trailing margin, and flush deferred
+   * spans (e.g. BaselineShiftSpan) after all block-level spans are set - see
+   * BaselineShiftRenderer for the proper long-term fix.
+   *
+   * An optional [block] decorates the pass - it enters a block style before the
+   * nodes render and post-processes the finished builder - letting a caller render
+   * content as e.g. blockquote text without this class knowing anything
+   * block-specific. See [BlockquoteTextRenderer].
    */
-  fun renderBlockquoteContent(
+  fun renderContent(
     nodes: List<MarkdownASTNode>,
-    blockquoteStyle: BlockquoteStyle,
     onLinkPress: ((String) -> Unit)? = null,
     onLinkLongPress: ((String) -> Unit)? = null,
+    block: BlockquoteTextRenderer? = null,
   ): SpannableString {
     val factory =
       requireNotNull(cachedFactory) {
-        "Renderer must be configured with a style before calling renderBlockquoteContent."
+        "Renderer must be configured with a style before rendering."
       }
 
     factory.resetForNewRender()
@@ -85,22 +65,16 @@ class Renderer {
     lastElementMarginBottom = 0f
 
     val builder = SpannableStringBuilder()
-    val document = MarkdownASTNode(type = MarkdownASTNode.NodeType.Document, children = nodes)
-    val context = factory.blockStyleContext
 
-    context.blockquoteDepth += 1
-    context.setBlockquoteStyle(blockquoteStyle)
+    block?.push(factory.blockStyleContext)
     try {
-      renderNode(document, builder, onLinkPress, onLinkLongPress, factory)
+      factory.renderNodes(nodes, builder, onLinkPress, onLinkLongPress)
     } finally {
-      context.popBlockStyle()
-      context.blockquoteDepth -= 1
+      block?.pop(factory.blockStyleContext)
     }
 
     removeTrailingMargin(builder)
-    if (builder.isNotEmpty()) {
-      applyLineHeightSkippingImages(builder, 0, builder.length, blockquoteStyle.lineHeight)
-    }
+    block?.postProcess(builder)
     factory.flushDeferredSpans(builder)
 
     return SpannableString(builder)
@@ -135,16 +109,6 @@ class Renderer {
    * and can be used in MeasurementStore to adjust the measured height.
    */
   fun getLastElementMarginBottom(): Float = lastElementMarginBottom
-
-  private fun renderNode(
-    node: MarkdownASTNode,
-    builder: SpannableStringBuilder,
-    onLinkPress: ((String) -> Unit)?,
-    onLinkLongPress: ((String) -> Unit)?,
-    factory: RendererFactory,
-  ) {
-    factory.getRenderer(node).render(node, builder, onLinkPress, onLinkLongPress, factory)
-  }
 
   /**
    * Internal helper used by the Factory's lambda to collect spans.
