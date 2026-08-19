@@ -59,7 +59,11 @@ fun splitASTIntoSegments(root: MarkdownASTNode): List<MarkdownSegment> {
         segments.add(MarkdownSegment.CodeBlock(child))
       }
 
-      MarkdownASTNode.NodeType.Blockquote -> {
+      // Admonitions are themed blockquotes: they reuse the same segment +
+      // container, which self-detect the admonition type and draw the header.
+      MarkdownASTNode.NodeType.Blockquote,
+      MarkdownASTNode.NodeType.Admonition,
+      -> {
         flushTextNodes()
         segments.add(MarkdownSegment.Blockquote(child))
       }
