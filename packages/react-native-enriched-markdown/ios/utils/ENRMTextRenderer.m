@@ -2,6 +2,7 @@
 #import "AccessibilityInfo.h"
 #import "AttributedRenderer.h"
 #import "ENRMBlockquoteTextRenderer.h"
+#import "ParagraphStyleUtils.h"
 #import "RenderContext.h"
 #import "StyleConfig.h"
 

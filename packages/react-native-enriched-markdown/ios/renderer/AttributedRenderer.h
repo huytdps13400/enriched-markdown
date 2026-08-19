@@ -4,6 +4,8 @@
 @class MarkdownASTNode;
 @class RenderContext;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface AttributedRenderer : NSObject
 - (instancetype)initWithConfig:(id)config;
 // Renders a flat list of sibling nodes into an attributed string: sets the baseline block style,
@@ -17,3 +19,5 @@
 - (CGFloat)getLastElementMarginBottom;
 - (void)setAllowTrailingMargin:(BOOL)allow;
 @end
+
+NS_ASSUME_NONNULL_END

@@ -23,11 +23,29 @@ const NESTED_MARKDOWN = `> top-level blockquote
 >> nested blockquote inside the first
 >>> deeply nested blockquote`;
 
-const CODE_BLOCK_MARKDOWN = `> Blockquote with a fenced code block inside:
+const BLOCK_ELEMENTS_MARKDOWN = `> Blockquote containing several block elements:
+>
+> ## A heading inside the quote
+>
+> A paragraph with **bold**, _italic_ and a [link](https://swmansion.com).
+>
+> - first bullet
+> - second bullet
+>
+> 1. ordered one
+> 2. ordered two
 >
 > \`\`\`ts
 > const answer = 42;
 > \`\`\`
+>
+> | Column A | Column B |
+> | -------- | -------- |
+> | 1        | 2        |
+>
+> $$E = mc^2$$
+>
+> > a nested blockquote inside
 >
 > and a trailing paragraph.`;
 
@@ -143,16 +161,16 @@ export const Nested: TextStory<BlockquoteStyleControls> = {
     ),
 };
 
-export const WithCodeBlock: TextStory<BlockquoteStyleControls> = {
+export const WithBlockElements: TextStory<BlockquoteStyleControls> = {
   ...blockquoteStoryBase,
   args: {
     ...blockquoteStoryBase.args,
-    markdown: CODE_BLOCK_MARKDOWN,
+    markdown: BLOCK_ELEMENTS_MARKDOWN,
   },
   render: (args) =>
     renderBlockquote(
-      'Blockquote with Code Block',
-      'A fenced code block inside a blockquote. With flavor="github" the code block becomes a real code-block container nested in the quote; with flavor="commonmark" it renders inline. Use the controls to tune markdownStyle.blockquote.',
+      'Blockquote with Block Elements',
+      'A blockquote holding many block elements - heading, lists, a fenced code block, a table, display math and a nested quote. With flavor="github" each becomes its own segment view (code block, table, math and nested quote as real containers) nested in the quote; with flavor="commonmark" they render inline. Use the controls to tune markdownStyle.blockquote.',
       args
     ),
 };
