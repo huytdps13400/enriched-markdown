@@ -32,7 +32,9 @@ const ALL_TYPES_MARKDOWN = `> [!NOTE]
 > Urgent info that needs immediate user attention to avoid problems.
 
 > [!CAUTION]
-> Advises about risks or negative outcomes of certain actions.`;
+> Advises about risks or negative outcomes of certain actions.
+
+> Control text showing default blockquote`;
 
 const BLOCK_ELEMENTS_MARKDOWN = `> [!IMPORTANT]
 > An admonition can hold many block elements:
