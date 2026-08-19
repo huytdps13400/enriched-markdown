@@ -337,4 +337,6 @@ yarn workspace @enriched-markdown/ios test
 yarn workspace @enriched-markdown/ios clean
 ```
 
-These scripts run `swift build` / `swift test` / `swift package clean` from the repository root.
+These scripts run `swift build` / `swift test` / `swift package clean` from the package root.
+
+In the monorepo, `core/md4c` and `core/parser` are symlinks into the shared C++ sources at `packages/core/cpp`. When syncing this folder to the standalone repository, dereference them so real files are copied (e.g. `rsync -a --copy-links`).

@@ -5,42 +5,42 @@ let package = Package(
     name: "EnrichedMarkdown",
     platforms: [.iOS(.v16)],
     products: [
-        .library(name: "EnrichedMarkdown", targets: ["EnrichedMarkdown"]),
+        .library(name: "EnrichedMarkdown", targets: ["EnrichedMarkdown"])
     ],
     targets: [
         .target(
             name: "EnrichedMarkdownCore",
-            path: "packages/core/cpp",
+            path: "core",
             sources: ["md4c", "parser"],
             publicHeadersPath: "parser",
             cSettings: [
-                .define("MD4C_USE_UTF8", to: "1"),
+                .define("MD4C_USE_UTF8", to: "1")
             ],
             cxxSettings: [
                 .headerSearchPath("md4c"),
-                .headerSearchPath("parser"),
+                .headerSearchPath("parser")
             ]
         ),
         .target(
             name: "EnrichedMarkdownCppShim",
             dependencies: ["EnrichedMarkdownCore"],
-            path: "packages/ios-enriched-markdown/cpp",
+            path: "cpp",
             publicHeadersPath: ".",
             cxxSettings: [
-                .headerSearchPath("../../core/cpp/md4c"),
-                .headerSearchPath("../../core/cpp/parser"),
-                .define("MD4C_USE_UTF8", to: "1"),
+                .headerSearchPath("../core/md4c"),
+                .headerSearchPath("../core/parser"),
+                .define("MD4C_USE_UTF8", to: "1")
             ]
         ),
         .target(
             name: "EnrichedMarkdown",
             dependencies: ["EnrichedMarkdownCppShim"],
-            path: "packages/ios-enriched-markdown/Sources/EnrichedMarkdown"
+            path: "Sources/EnrichedMarkdown"
         ),
         .testTarget(
             name: "EnrichedMarkdownTests",
             dependencies: ["EnrichedMarkdown"],
-            path: "packages/ios-enriched-markdown/Tests/EnrichedMarkdownTests"
-        ),
+            path: "Tests/EnrichedMarkdownTests"
+        )
     ]
 )
