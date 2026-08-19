@@ -119,14 +119,20 @@ object SegmentViewCreators {
     applyCodeBlockNode(segment.node)
   }
 
-  fun mathContainerClass(): Class<*>? =
+  // Availability is fixed at build time (the math source set is compiled in or not), so the
+  // reflective lookup - including the ClassNotFoundException when math is disabled - is resolved
+  // once instead of on every reconcile via isMathContainerView/matchesKind.
+  private val cachedMathContainerClass: Class<*>? by lazy {
     try {
       Class.forName("com.swmansion.enriched.markdown.segments.MathContainerView")
     } catch (_: Exception) {
       null
     }
+  }
 
-  fun isMathContainerView(view: View): Boolean = mathContainerClass()?.isInstance(view) == true
+  fun mathContainerClass(): Class<*>? = cachedMathContainerClass
+
+  fun isMathContainerView(view: View): Boolean = cachedMathContainerClass?.isInstance(view) == true
 
   fun createMathView(
     segment: RenderedSegment.Math,
