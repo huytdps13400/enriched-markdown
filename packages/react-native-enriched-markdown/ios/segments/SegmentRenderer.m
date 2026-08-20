@@ -40,8 +40,6 @@ static NSArray *ENRMSplitASTIntoSegments(MarkdownASTNode *root)
       }
       [segments addObject:[ENRMCodeBlockSegment segmentWithCodeBlockNode:child]];
     } else if (child.type == MarkdownNodeTypeBlockquote || child.type == MarkdownNodeTypeAdmonition) {
-      // Admonitions are themed blockquotes: they reuse the same segment + container,
-      // which self-detect the admonition type and draw the header.
       if (currentTextNodes.count > 0) {
         [segments addObject:[ENRMTextSegment segmentWithNodes:[currentTextNodes copy]]];
         [currentTextNodes removeAllObjects];
