@@ -315,8 +315,15 @@ static char kENRMSegmentFadeAnimatorKey;
 - (ENRMBlockquoteContainerView *)createBlockquoteViewForSegment:(ENRMBlockquoteSegment *)blockquoteSegment
 {
   ENRMBlockquoteContainerView *view = [[ENRMBlockquoteContainerView alloc] initWithConfig:_config];
+  view.copyLabel = _selectionMenuLabels.copyLabel;
+  view.copyAsMarkdownLabel = _selectionMenuLabels.copyAsMarkdownLabel;
 
   __weak EnrichedMarkdown *weakSelf = self;
+  view.onCopyPress = ^(NSString *code, NSString *language) {
+    EnrichedMarkdown *strongSelf = weakSelf;
+    if (strongSelf)
+      [strongSelf emitCopyPress:code language:language];
+  };
   view.onLinkPress = ^(NSString *url) {
     EnrichedMarkdown *strongSelf = weakSelf;
     if (strongSelf && url)
@@ -572,6 +579,11 @@ static char kENRMSegmentFadeAnimatorKey;
       ENRMCodeBlockContainerView *codeBlockView = (ENRMCodeBlockContainerView *)segment;
       codeBlockView.copyLabel = _selectionMenuLabels.copyLabel;
       codeBlockView.copyAsMarkdownLabel = _selectionMenuLabels.copyAsMarkdownLabel;
+    } else if ([segment isKindOfClass:[ENRMBlockquoteContainerView class]]) {
+      ENRMBlockquoteContainerView *blockquoteView = (ENRMBlockquoteContainerView *)segment;
+      blockquoteView.copyLabel = _selectionMenuLabels.copyLabel;
+      blockquoteView.copyAsMarkdownLabel = _selectionMenuLabels.copyAsMarkdownLabel;
+      [blockquoteView pushCopyLabelsToChildren];
     }
   }
 }

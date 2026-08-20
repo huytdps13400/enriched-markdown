@@ -54,6 +54,30 @@ static UIEdgeInsets ENRMBlockquoteContentInsets(StyleConfig *config)
   [self applySegments:rendered reset:NO];
 }
 
+- (void)pushCopyLabelsToChildren
+{
+  for (RCTUIView *child in self.subviews) {
+    if ([child isKindOfClass:[ENRMCodeBlockContainerView class]]) {
+      ((ENRMCodeBlockContainerView *)child).copyLabel = self.copyLabel;
+      ((ENRMCodeBlockContainerView *)child).copyAsMarkdownLabel = self.copyAsMarkdownLabel;
+    } else if ([child isKindOfClass:[TableContainerView class]]) {
+      ((TableContainerView *)child).copyLabel = self.copyLabel;
+      ((TableContainerView *)child).copyAsMarkdownLabel = self.copyAsMarkdownLabel;
+    } else if ([child isKindOfClass:[ENRMBlockquoteContainerView class]]) {
+      ENRMBlockquoteContainerView *quote = (ENRMBlockquoteContainerView *)child;
+      quote.copyLabel = self.copyLabel;
+      quote.copyAsMarkdownLabel = self.copyAsMarkdownLabel;
+      [quote pushCopyLabelsToChildren];
+    }
+#if ENRICHED_MARKDOWN_MATH
+    else if ([child isKindOfClass:[ENRMMathContainerView class]]) {
+      ((ENRMMathContainerView *)child).copyLabel = self.copyLabel;
+      ((ENRMMathContainerView *)child).copyAsMarkdownLabel = self.copyAsMarkdownLabel;
+    }
+#endif
+  }
+}
+
 // Child registry for this quote's own content. It reuses static creators for
 // every kind and, for a nested Blockquote, creates another
 // ENRMBlockquoteContainerView (the recursion). Streaming is static: no
@@ -96,6 +120,8 @@ static UIEdgeInsets ENRMBlockquoteContentInsets(StyleConfig *config)
                             TableContainerView *view = [[TableContainerView alloc] initWithConfig:config];
                             ENRMBlockquoteContainerView *strongSelf = weakSelf;
                             if (strongSelf) {
+                              view.copyLabel = strongSelf.menuCopyLabel;
+                              view.copyAsMarkdownLabel = strongSelf.menuCopyAsMarkdownLabel;
                               view.onLinkPress = ^(NSString *url) {
                                 ENRMBlockquoteContainerView *s = weakSelf;
                                 if (s.onLinkPress && url)
@@ -121,6 +147,14 @@ static UIEdgeInsets ENRMBlockquoteContentInsets(StyleConfig *config)
                     }
                     createView:^RCTUIView *(ENRMRenderedSegment *segment) {
                       ENRMCodeBlockContainerView *view = [[ENRMCodeBlockContainerView alloc] initWithConfig:config];
+                      ENRMBlockquoteContainerView *strongSelf = weakSelf;
+                      view.copyLabel = strongSelf.menuCopyLabel;
+                      view.copyAsMarkdownLabel = strongSelf.menuCopyAsMarkdownLabel;
+                      view.onCopyPress = ^(NSString *code, NSString *language) {
+                        ENRMBlockquoteContainerView *s = weakSelf;
+                        if (s.onCopyPress)
+                          s.onCopyPress(code, language);
+                      };
                       [view applyCodeBlockNode:segment.codeBlockSegment.codeBlockNode];
                       return view;
                     }
@@ -138,6 +172,9 @@ static UIEdgeInsets ENRMBlockquoteContentInsets(StyleConfig *config)
                             view.nested = YES;
                             ENRMBlockquoteContainerView *strongSelf = weakSelf;
                             if (strongSelf) {
+                              view.copyLabel = strongSelf.menuCopyLabel;
+                              view.copyAsMarkdownLabel = strongSelf.menuCopyAsMarkdownLabel;
+                              view.onCopyPress = strongSelf.onCopyPress;
                               view.onLinkPress = ^(NSString *url) {
                                 ENRMBlockquoteContainerView *s = weakSelf;
                                 if (s.onLinkPress && url)
@@ -165,6 +202,9 @@ static UIEdgeInsets ENRMBlockquoteContentInsets(StyleConfig *config)
                           }
                           createView:^RCTUIView *(ENRMRenderedSegment *segment) {
                             ENRMMathContainerView *view = [[ENRMMathContainerView alloc] initWithConfig:config];
+                            ENRMBlockquoteContainerView *strongSelf = weakSelf;
+                            view.copyLabel = strongSelf.menuCopyLabel;
+                            view.copyAsMarkdownLabel = strongSelf.menuCopyAsMarkdownLabel;
                             [view applyLatex:segment.mathSegment.latex];
                             return view;
                           }

@@ -4,6 +4,7 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import com.swmansion.enriched.markdown.parser.MarkdownASTNode
 import com.swmansion.enriched.markdown.styles.BlockquoteStyle
+import com.swmansion.enriched.markdown.utils.text.span.SPAN_FLAGS_LINE_HEIGHT_PRIORITY
 import com.swmansion.enriched.markdown.utils.text.span.applyLineHeightSkippingImages
 
 /**
@@ -13,7 +14,7 @@ import com.swmansion.enriched.markdown.utils.text.span.applyLineHeightSkippingIm
  *
  * It decorates a generic [Renderer.renderContent] pass rather than owning the
  * render envelope itself: [push] enters the blockquote block style so text picks
- * up the quote's font/color and paragraphs render tight (isInsideBlockElement),
+ * up the quote's font/color while still emitting block margins between children,
  * matching the commonmark BlockquoteRenderer; [postProcess] applies the quote's
  * line height once the builder is complete. It draws no border/background/padding
  * - the BlockquoteContainerView draws the box.
@@ -40,7 +41,16 @@ class BlockquoteTextRenderer(
 
   fun postProcess(builder: SpannableStringBuilder) {
     if (builder.isNotEmpty()) {
-      applyLineHeightSkippingImages(builder, 0, builder.length, style.lineHeight)
+      // Priority flag so this block-wide line height iterates before the per-block
+      // MarginBottomSpans, which then add their gap on top instead of being
+      // normalized away (see SPAN_FLAGS_LINE_HEIGHT_PRIORITY).
+      applyLineHeightSkippingImages(
+        builder,
+        0,
+        builder.length,
+        style.lineHeight,
+        SPAN_FLAGS_LINE_HEIGHT_PRIORITY,
+      )
     }
   }
 }

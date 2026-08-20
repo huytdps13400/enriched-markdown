@@ -1,5 +1,6 @@
 #pragma once
 
+#import "ENRMCodeBlockContainerView.h"
 #import "ENRMContainerNodeView.h"
 #import "StyleConfig.h"
 
@@ -60,6 +61,17 @@ typedef void (^ENRMBlockquoteLinkBlock)(NSString *url);
 // quotes so links at any depth fire.
 @property (nonatomic, copy, nullable) ENRMBlockquoteLinkBlock onLinkPress;
 @property (nonatomic, copy, nullable) ENRMBlockquoteLinkBlock onLinkLongPress;
+
+// Copy-menu titles and copy callback propagated to block children (code block,
+// table, math) inside the quote, recursing into nested quotes. Renamed getters
+// avoid the Cocoa `copy` method family, matching ENRMCodeBlockContainerView.
+@property (nonatomic, copy, nullable, getter=menuCopyLabel) NSString *copyLabel;
+@property (nonatomic, copy, nullable, getter=menuCopyAsMarkdownLabel) NSString *copyAsMarkdownLabel;
+@property (nonatomic, copy, nullable) ENRMCodeBlockCopyBlock onCopyPress;
+
+// Re-applies the current copy labels and onCopyPress to already-created
+// children when the labels change without a remount.
+- (void)pushCopyLabelsToChildren;
 
 @end
 
