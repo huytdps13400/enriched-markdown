@@ -47,6 +47,9 @@ object AdmonitionIcons {
       "caution" to "Caution",
     )
 
+  /** The supported admonition types, in the order md4c reports them. */
+  val TYPES: Set<String> = PATH_DATA.keys
+
   /** Parses the octicon path for [type] into a Path in the 16x16 icon space. */
   fun path(type: String): Path? = PATH_DATA[type]?.let { PathParser.createPathFromPathData(it) }
 

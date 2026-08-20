@@ -1,6 +1,7 @@
 package com.swmansion.enriched.markdown.styles
 
 import com.facebook.react.bridge.ReadableMap
+import com.swmansion.enriched.markdown.segments.AdmonitionIcons
 
 /** Per-admonition-type colors. [color] tints border/title/icon; [backgroundColor] null = transparent. */
 data class AdmonitionColors(
@@ -25,15 +26,13 @@ data class BlockquoteStyle(
   val admonitions: Map<String, AdmonitionColors>,
 ) : BaseBlockStyle {
   companion object {
-    private val ADMONITION_TYPES = listOf("note", "tip", "important", "warning", "caution")
-
     private fun parseAdmonitions(
       map: ReadableMap,
       parser: StyleParser,
     ): Map<String, AdmonitionColors> {
       val admonitionsMap = map.getMap("admonitions") ?: return emptyMap()
       val result = mutableMapOf<String, AdmonitionColors>()
-      for (type in ADMONITION_TYPES) {
+      for (type in AdmonitionIcons.TYPES) {
         val typeMap = admonitionsMap.getMap(type) ?: continue
         result[type] =
           AdmonitionColors(
