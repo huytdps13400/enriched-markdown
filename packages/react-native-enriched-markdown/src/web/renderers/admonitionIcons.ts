@@ -9,6 +9,11 @@ import type { AdmonitionType } from '../../admonitionDefaults';
 //   - iOS:     ios/segments/ENRMAdmonitionIcons.m
 //   - Android: android/.../segments/AdmonitionIcons.kt
 //   - Web:     this file
+// Parity is enforced by __tests__/admonition-icons-parity.test.ts (jest, run in
+// CI), which reads all three files and fails on any drift. That guard only works
+// while all three copies live under packages/react-native-enriched-markdown/**;
+// moving a copy out of this package requires re-homing the guard (or adding a
+// native-side check) so the copies can't silently diverge.
 export const ADMONITION_ICON_VIEWBOX = 16;
 
 export const ADMONITION_ICON_PATHS: Record<AdmonitionType, string> = {

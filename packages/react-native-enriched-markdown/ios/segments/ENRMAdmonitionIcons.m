@@ -4,7 +4,13 @@
 const CGFloat ENRMAdmonitionIconViewBox = 16.0;
 
 // note=info, tip=light-bulb, important=report, warning=alert, caution=stop.
-// Keep byte-identical with AdmonitionIcons.kt / admonitionIcons.ts.
+// Keep byte-identical with AdmonitionIcons.kt / admonitionIcons.ts (the web file
+// is the source of truth). Parity is enforced by
+// __tests__/admonition-icons-parity.test.ts (jest, run in CI), which reads all
+// three files and fails on any drift. That guard only works while all three
+// copies live under packages/react-native-enriched-markdown/**; moving a copy
+// out of this package requires re-homing the guard (or adding a native-side
+// check) so the copies can't silently diverge.
 static NSDictionary<NSString *, NSString *> *ENRMAdmonitionIconPathData(void)
 {
   static NSDictionary<NSString *, NSString *> *data;

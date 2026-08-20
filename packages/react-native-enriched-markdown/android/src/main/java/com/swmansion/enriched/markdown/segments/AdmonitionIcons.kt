@@ -11,9 +11,15 @@ import androidx.core.graphics.PathParser
  * same everywhere:
  *   - iOS:     ios/segments/ENRMAdmonitionIcons.m
  *   - Android: this file
- *   - Web:     src/web/renderers/admonitionIcons.ts
+ *   - Web:     src/web/renderers/admonitionIcons.ts (source of truth)
  *
  * note=info, tip=light-bulb, important=report, warning=alert, caution=stop.
+ *
+ * Parity is enforced by __tests__/admonition-icons-parity.test.ts (jest, run in
+ * CI), which reads all three files and fails on any drift. That guard only works
+ * while all three copies live under packages/react-native-enriched-markdown;
+ * moving a copy out of this package requires re-homing the guard (or adding a
+ * native-side check) so the copies can't silently diverge.
  */
 object AdmonitionIcons {
   const val VIEWBOX = 16f
