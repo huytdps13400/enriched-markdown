@@ -3,49 +3,77 @@ import { createRoot } from 'react-dom/client';
 import PlatformNavbarItem from '@site/src/theme/NavbarItem/PlatformNavbarItem';
 
 // t-rex-ui's navbar ignores site-level custom navbar item types, so we expose a
-// plain `html` navbar item (a mount node) in docusaurus.config.js and hydrate
-// our React selector into it here.
+// plain `html` navbar item (a mount node, class `rnem-platform-navbar-slot`) in
+// docusaurus.config.js and hydrate our interactive React selector into it here.
 //
-// The one hard rule: never mount BEFORE hydration. Mounting into the navbar's
-// html slot while React is still hydrating causes a mismatch that breaks the
-// navbar (logo -> alt text) and drops this widget. So every trigger below is
-// guaranteed post-hydration:
-//   - onRouteDidUpdate: a layout effect that runs after each route commit
-//   - window 'load' / readyState 'complete': after the initial page is settled
-// A double requestAnimationFrame defers past the current commit for good
-// measure, and the data-mounted guard keeps it idempotent.
+// t-rex renders that html item in TWO places: the top navbar (present at SSR)
+// AND, client-side when the hamburger opens, inside the mobile drawer. Both use
+// the same markup, but only one can be the real interactive widget. We mount
+// the top-bar copy and hide any copy the drawer spawns (a MutationObserver
+// catches it on open), so the burger never shows a dead, "reset" placeholder.
+//
+// Timing rule: only touch the DOM AFTER hydration (onRouteDidUpdate runs in a
+// layout effect post-hydration and fires on initial load; the load event backs
+// it up). Mounting mid-hydration corrupts the navbar.
 
-const MOUNT_ID = 'rnem-platform-navbar';
+const SLOT = 'rnem-platform-navbar-slot';
+let observer: MutationObserver | null = null;
 
-function mount() {
+function handleSlot(slot: HTMLElement) {
+  if (slot.dataset.rnemHandled === 'true') {
+    return;
+  }
+  slot.dataset.rnemHandled = 'true';
+
+  // A copy rendered into the mobile hamburger drawer — hide it. The top-bar
+  // copy is the single interactive selector.
+  if (slot.closest('.navbar-sidebar')) {
+    slot.style.display = 'none';
+    const listItem = slot.closest('.menu__list-item') as HTMLElement | null;
+    if (listItem) {
+      listItem.style.display = 'none';
+    }
+    return;
+  }
+
+  createRoot(slot).render(<PlatformNavbarItem />);
+}
+
+function scan() {
   if (typeof document === 'undefined') {
     return;
   }
-  const el = document.getElementById(MOUNT_ID);
-  if (!el || el.dataset.mounted === 'true') {
-    return;
-  }
-  el.dataset.mounted = 'true';
-  createRoot(el).render(<PlatformNavbarItem />);
+  document
+    .querySelectorAll<HTMLElement>(`.${SLOT}`)
+    .forEach((slot) => handleSlot(slot));
 }
 
-function scheduleMount() {
+function start() {
+  scan();
+  if (!observer && typeof MutationObserver !== 'undefined') {
+    // Watch for the drawer copy that appears when the hamburger opens.
+    const target = document.querySelector('nav.navbar') ?? document.body;
+    observer = new MutationObserver(() => scan());
+    observer.observe(target, { childList: true, subtree: true });
+  }
+}
+
+function scheduleStart() {
   if (typeof window === 'undefined') {
     return;
   }
-  window.requestAnimationFrame(() => window.requestAnimationFrame(mount));
-  // Fallback in case rAF is throttled (e.g. background tab).
-  window.setTimeout(mount, 50);
+  window.requestAnimationFrame(() => window.requestAnimationFrame(start));
+  window.setTimeout(start, 50);
 }
 
 export function onRouteDidUpdate() {
-  scheduleMount();
+  scheduleStart();
 }
 
 if (typeof window !== 'undefined') {
   if (document.readyState === 'complete') {
-    scheduleMount();
+    scheduleStart();
   } else {
-    window.addEventListener('load', scheduleMount, { once: true });
+    window.addEventListener('load', scheduleStart, { once: true });
   }
 }

@@ -10,6 +10,7 @@ import Row from '@site/src/components/Row';
 import Grid from '@site/src/components/Grid';
 import { Yes, No, Version, Spacer } from '@site/src/components/Compatibility';
 import Platform from '@site/src/components/Platform';
+import PlatformName from '@site/src/components/PlatformName';
 import { PlatformBadge, Availability } from '@site/src/components/PlatformBadge';
 import { Badges } from '@swmansion/t-rex-ui';
 
@@ -29,6 +30,7 @@ export default {
   Version,
   Spacer,
   Platform,
+  PlatformName,
   PlatformBadge,
   Availability,
   Badges,

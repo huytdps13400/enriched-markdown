@@ -19,9 +19,9 @@ export interface PlatformDef {
 // Order here is the order shown in the selector. Add `web` when it ships —
 // no other change is needed to light it up.
 export const PLATFORMS: PlatformDef[] = [
-  { id: 'rn', label: 'React Native', version: '1.1.0' },
-  { id: 'ios', label: 'iOS', version: '0.2.0' },
-  { id: 'android', label: 'Android', version: '0.3.0' },
+  { id: 'rn', label: 'React Native', version: '1.0.2' },
+  { id: 'ios', label: 'iOS', version: '0.1.0' },
+  { id: 'android', label: 'Android', version: '0.1.0' },
 ];
 
 export const DEFAULT_PLATFORM: PlatformId = 'rn';
@@ -31,12 +31,12 @@ export const DEFAULT_PLATFORM: PlatformId = 'rn';
 // global selector.
 export const PLATFORM_STORAGE_KEY = 'docusaurus.tab.platform';
 
-const VALID_IDS = new Set<string>(PLATFORMS.map((p) => p.id));
+const VALID_IDS = new Set<string>(PLATFORMS.map(p => p.id));
 
 export function isPlatformId(value: unknown): value is PlatformId {
   return typeof value === 'string' && VALID_IDS.has(value);
 }
 
 export function getPlatform(id: PlatformId): PlatformDef {
-  return PLATFORMS.find((p) => p.id === id) ?? PLATFORMS[0];
+  return PLATFORMS.find(p => p.id === id) ?? PLATFORMS[0];
 }

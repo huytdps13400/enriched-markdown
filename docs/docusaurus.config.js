@@ -10,9 +10,9 @@ import { PLATFORMS, DEFAULT_PLATFORM } from './src/platform/config.ts';
 // slot is correct on first paint; src/clientModules/platformNavbar.tsx then
 // hydrates the interactive widget into it with identical markup (no flash).
 const defaultPlatform =
-  PLATFORMS.find((p) => p.id === DEFAULT_PLATFORM) ?? PLATFORMS[0];
+  PLATFORMS.find(p => p.id === DEFAULT_PLATFORM) ?? PLATFORMS[0];
 const platformNavbarSlot =
-  '<div id="rnem-platform-navbar">' +
+  '<div class="rnem-platform-navbar-slot">' +
   '<div class="navbar__item dropdown dropdown--hoverable dropdown--right">' +
   '<a class="navbar__link" href="#" aria-haspopup="true">' +
   defaultPlatform.label +
@@ -83,12 +83,6 @@ const config = {
           editUrl:
             'https://github.com/software-mansion/enriched-markdown/edit/main/docs/',
           lastVersion: 'current',
-          versions: {
-            current: {
-              label: '1.x',
-              banner: 'none',
-            },
-          },
         },
         theme: {
           customCss: require.resolve('./src/css/index.css'),
@@ -127,13 +121,13 @@ const config = {
       navbar: {
         hideOnScroll: false,
         logo: {
-          alt: 'React Native Enriched Markdown logo',
+          alt: 'Enriched Markdown logo',
           src: 'img/logo.svg',
           srcDark: 'img/logo-dark.svg',
         },
         items: [
           {
-            to: 'fundamentals/getting-started',
+            to: '/getting-started',
             label: 'Docs',
             position: 'right',
           },
