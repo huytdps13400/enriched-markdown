@@ -71,16 +71,16 @@ view.markdown = "# Hello **world**"
 
 ## Props
 
-The API is meant to converge, so props are documented once. A badge shows where
-a prop is newer or not yet available — it reacts to the selected platform.
+The API is meant to converge, so props are documented once. A badge shows
+whether a prop is present on the selected platform — it reacts as you switch.
 
-### `value` <PlatformBadge rn="1.0" ios="0.1" android="0.1" />
+### `value` <PlatformBadge rn ios android />
 
-The markdown string to render. Available everywhere.
+The markdown string to render. Present everywhere.
 
-### `onLinkPress` <PlatformBadge rn="1.1" ios="0.2" android={false} />
+### `onLinkPress` <PlatformBadge rn ios android={false} />
 
-Called when the user taps a link. Newer on some platforms, not yet on others —
+Called when the user taps a link. Present on some platforms, not others —
 switch the selector to see the badge change.
 
 ### Full support matrix
@@ -89,18 +89,18 @@ For an at-a-glance view, a static row shows every platform at once:
 
 | Prop | Availability |
 | --- | --- |
-| `value` | <Availability rn="1.0" ios="0.1" android="0.1" /> |
-| `onLinkPress` | <Availability rn="1.1" ios="0.2" android={false} /> |
-| `selectable` | <Availability rn="1.1" ios={false} android={false} /> |
+| `value` | <Availability rn ios android /> |
+| `onLinkPress` | <Availability rn ios android={false} /> |
+| `selectable` | <Availability rn ios={false} android={false} /> |
 
 ## How this maps to your questions
 
 - **One selector, docs written once** — the navbar platform selector drives
   every `<Platform only="…">` block and every `<PlatformBadge />` on the page,
   and the choice persists across navigation.
-- **"Not implemented" badges** — driven by a per-prop support value
-  (`false` → *Not implemented*, a version string → *Since …*). The same data
-  powers the static `<Availability />` matrix.
+- **Present / not-present badges** — driven by a per-prop boolean per platform
+  (`false` → *Not present*, otherwise *Present*). The same data powers the
+  static `<Availability />` matrix.
 - **Versions** — each platform's package version shows in the selector as a
   label. This is deliberately separate from Docusaurus versioning (full
   `/1.0/` vs `/1.1/` snapshots), which we'd only turn on for a breaking major.

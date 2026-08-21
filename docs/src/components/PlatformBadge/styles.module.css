@@ -9,9 +9,9 @@
   white-space: nowrap;
 }
 
-.since {
-  background: var(--ifm-color-info-contrast-background);
-  color: var(--ifm-color-info-contrast-foreground);
+.yes {
+  background: var(--ifm-color-success-contrast-background);
+  color: var(--ifm-color-success-contrast-foreground);
 }
 
 .no {

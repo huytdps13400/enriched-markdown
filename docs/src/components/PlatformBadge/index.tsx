@@ -1,70 +1,51 @@
 import React from 'react';
 import clsx from 'clsx';
 import { usePlatform } from '@site/src/platform/context';
-import { getPlatform, PLATFORMS, type PlatformId } from '@site/src/platform/config';
+import { PLATFORMS, type PlatformId } from '@site/src/platform/config';
 import styles from './styles.module.css';
 
-// A support value per platform:
-//   string  -> supported since that version   (e.g. "1.1")
-//   true    -> supported, no "since" info
-//   false / undefined -> not implemented
-type Support = string | boolean | undefined;
+// Presence per platform: truthy = present, false/undefined = not present.
+// (Strings are still accepted and treated as present, for convenience.)
+type Present = boolean | string | undefined;
 
 interface SupportProps {
-  rn?: Support;
-  ios?: Support;
-  android?: Support;
+  rn?: Present;
+  ios?: Present;
+  android?: Present;
 }
 
-function statusOf(value: Support): 'since' | 'yes' | 'no' {
-  if (typeof value === 'string') return 'since';
-  if (value === true) return 'yes';
-  return 'no';
+function isPresent(value: Present): boolean {
+  return value !== undefined && value !== false;
 }
 
-// Context-aware inline badge: reflects the CURRENTLY selected platform only.
-// Put it next to a feature/prop heading — it updates live as the reader
-// switches platform. Renders nothing when the feature is plainly supported.
+// Context-aware inline badge: shows whether the feature is present on the
+// CURRENTLY selected platform. Updates live as the reader switches platform.
 export function PlatformBadge(props: SupportProps) {
   const { platform } = usePlatform();
-  const def = getPlatform(platform);
-  const value = props[platform];
-  const status = statusOf(value);
+  const present = isPresent(props[platform]);
 
-  if (status === 'yes') {
-    return null;
-  }
-  if (status === 'no') {
-    return (
-      <span className={clsx(styles.badge, styles.no)}>
-        Not implemented on {def.label}
-      </span>
-    );
-  }
   return (
-    <span className={clsx(styles.badge, styles.since)}>
-      Since {def.label} {value as string}
+    <span className={clsx(styles.badge, present ? styles.yes : styles.no)}>
+      {present ? 'Present' : 'Not present'}
     </span>
   );
 }
 
-// Static, platform-independent row showing support across all platforms at
-// once. Good for API-reference prop tables where you want the full picture.
+// Static, platform-independent row showing presence across all platforms at
+// once. Good for API-reference tables where you want the full picture.
 export function Availability(props: SupportProps) {
   return (
     <span className={styles.availability}>
       {PLATFORMS.map((p) => {
-        const value = props[p.id as PlatformId];
-        const status = statusOf(value);
+        const present = isPresent(props[p.id as PlatformId]);
         return (
           <span
             key={p.id}
             className={clsx(
               styles.chip,
-              status === 'no' ? styles.chipNo : styles.chipYes,
+              present ? styles.chipYes : styles.chipNo,
             )}>
-            {p.label}
-            {status === 'since' ? ` ${value as string}` : status === 'no' ? ' ✗' : ' ✓'}
+            {p.label}: {present ? 'present' : 'not present'}
           </span>
         );
       })}
