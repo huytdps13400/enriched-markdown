@@ -1,0 +1,106 @@
+---
+sidebar_label: Platform selector (prototype)
+---
+
+# Platform selector prototype
+
+This page is a **prototype** of the single-source, multi-platform docs model.
+The prose is written **once**. Use the **platform selector in the navbar**
+(top right) to switch platform — the code examples and availability badges
+update everywhere, and your choice follows you to every other page.
+
+## Installation
+
+The install prose is identical across platforms — only the command differs.
+
+<Platform only="rn">
+
+```bash
+yarn add react-native-enriched-markdown
+```
+
+</Platform>
+
+<Platform only="ios">
+
+```bash
+pod 'EnrichedMarkdown', '~> 0.2'
+```
+
+</Platform>
+
+<Platform only="android">
+
+```groovy
+implementation("com.swmansion.enrichedmarkdown:enriched-markdown:0.3.0")
+```
+
+</Platform>
+
+## Rendering markdown
+
+Same explanation for everyone; the snippet is the platform-native equivalent.
+
+<Platform only="rn">
+
+```tsx
+import { EnrichedText } from 'react-native-enriched-markdown';
+
+<EnrichedText value="# Hello **world**" />;
+```
+
+</Platform>
+
+<Platform only="ios">
+
+```swift
+let view = EnrichedTextView()
+view.markdown = "# Hello **world**"
+```
+
+</Platform>
+
+<Platform only="android">
+
+```kotlin
+val view = EnrichedTextView(context)
+view.markdown = "# Hello **world**"
+```
+
+</Platform>
+
+## Props
+
+The API is meant to converge, so props are documented once. A badge shows where
+a prop is newer or not yet available — it reacts to the selected platform.
+
+### `value` <PlatformBadge rn="1.0" ios="0.1" android="0.1" />
+
+The markdown string to render. Available everywhere.
+
+### `onLinkPress` <PlatformBadge rn="1.1" ios="0.2" android={false} />
+
+Called when the user taps a link. Newer on some platforms, not yet on others —
+switch the selector to see the badge change.
+
+### Full support matrix
+
+For an at-a-glance view, a static row shows every platform at once:
+
+| Prop | Availability |
+| --- | --- |
+| `value` | <Availability rn="1.0" ios="0.1" android="0.1" /> |
+| `onLinkPress` | <Availability rn="1.1" ios="0.2" android={false} /> |
+| `selectable` | <Availability rn="1.1" ios={false} android={false} /> |
+
+## How this maps to your questions
+
+- **One selector, docs written once** — the navbar platform selector drives
+  every `<Platform only="…">` block and every `<PlatformBadge />` on the page,
+  and the choice persists across navigation.
+- **"Not implemented" badges** — driven by a per-prop support value
+  (`false` → *Not implemented*, a version string → *Since …*). The same data
+  powers the static `<Availability />` matrix.
+- **Versions** — each platform's package version shows in the selector as a
+  label. This is deliberately separate from Docusaurus versioning (full
+  `/1.0/` vs `/1.1/` snapshots), which we'd only turn on for a breaking major.

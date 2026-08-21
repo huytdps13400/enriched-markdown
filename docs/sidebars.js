@@ -10,6 +10,7 @@ const sidebars = {
         'fundamentals/intro',
         'fundamentals/getting-started',
         'fundamentals/installation',
+        'fundamentals/platform-selector-demo',
       ],
     },
     {
