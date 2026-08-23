@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, ScrollView } from 'react-native';
 import { HomeScreenButton } from './HomeScreenButton';
 import type {
   RootStackParamList,
@@ -45,6 +45,27 @@ const SCREENS: ScreenItem[] = [
     color: '#AF52DE',
   },
   {
+    route: 'ImageStylesHero',
+    label: 'Image Styles · 1',
+    subtext: 'video: frames & crops',
+    testID: 'home-block-image-styles-hero',
+    color: '#0EA5E9',
+  },
+  {
+    route: 'ImageStylesSizing',
+    label: 'Image Styles · 2',
+    subtext: 'video: aspectRatio / maxHeight / height',
+    testID: 'home-block-image-styles-sizing',
+    color: '#38BDF8',
+  },
+  {
+    route: 'ImageStylesResizeMode',
+    label: 'Image Styles · 3',
+    subtext: 'video: cover / contain / stretch…',
+    testID: 'home-block-image-styles-resize',
+    color: '#0284C7',
+  },
+  {
     route: 'Storybook',
     label: 'Storybook',
     subtext: 'component stories',
@@ -55,7 +76,11 @@ const SCREENS: ScreenItem[] = [
 
 export default function HomeScreen({ navigation }: Props) {
   return (
-    <View style={styles.container} testID="home-screen">
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      testID="home-screen"
+    >
       <Text style={styles.title}>Enriched Markdown Examples</Text>
       <Text style={styles.subtitle}>
         Explore different markdown rendering and input capabilities
@@ -75,17 +100,20 @@ export default function HomeScreen({ navigation }: Props) {
           }
         />
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 28,

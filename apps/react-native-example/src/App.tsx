@@ -5,7 +5,11 @@ import PlaygroundScreen from './screens/playground/PlaygroundScreen';
 import TextScreen from './screens/text/TextScreen';
 import InputScreen from './screens/input/InputScreen';
 import StreamingMarkdownSimulator from './screens/streaming/StreamingMarkdownSimulator';
+import ImageStylesHeroScreen from './screens/imageStyles/ImageStylesHeroScreen';
+import ImageStylesSizingScreen from './screens/imageStyles/ImageStylesSizingScreen';
+import ImageStylesResizeModeScreen from './screens/imageStyles/ImageStylesResizeModeScreen';
 import StorybookScreen from './screens/storybook/StorybookScreen';
+import { imageStylesHeaderOptions } from './screens/imageStyles/ImageStylesGallery';
 
 export default function App() {
   return (
@@ -47,6 +51,21 @@ export default function App() {
           name="Stream"
           component={StreamingMarkdownSimulator}
           options={{ title: 'Stream' }}
+        />
+        <Stack.Screen
+          name="ImageStylesHero"
+          component={ImageStylesHeroScreen}
+          options={imageStylesHeaderOptions}
+        />
+        <Stack.Screen
+          name="ImageStylesSizing"
+          component={ImageStylesSizingScreen}
+          options={imageStylesHeaderOptions}
+        />
+        <Stack.Screen
+          name="ImageStylesResizeMode"
+          component={ImageStylesResizeModeScreen}
+          options={imageStylesHeaderOptions}
         />
         <Stack.Screen
           name="Storybook"

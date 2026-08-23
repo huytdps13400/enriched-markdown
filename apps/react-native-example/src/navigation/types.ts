@@ -6,6 +6,9 @@ export type RootStackParamList = {
   Text: undefined;
   Input: { channel: string };
   Stream: undefined;
+  ImageStylesHero: undefined;
+  ImageStylesSizing: undefined;
+  ImageStylesResizeMode: undefined;
   Storybook: undefined;
 };
 
