@@ -121,6 +121,7 @@ fun parseImageRequestHeaders(value: ReadableArray?): Map<String, String> =
 fun parseSelectionMenuConfig(value: ReadableMap?): SelectionMenuConfig {
   if (value == null) return SelectionMenuConfig()
   return SelectionMenuConfig(
+    blockContextMenu = value.getBoolean("blockContextMenu"),
     copyAsMarkdown = value.getBoolean("copyAsMarkdown"),
     copyImageUrl = value.getBoolean("copyImageUrl"),
     copyLabel = value.getString("copyLabel") ?: "",

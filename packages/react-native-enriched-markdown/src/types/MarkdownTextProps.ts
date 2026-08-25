@@ -67,6 +67,14 @@ export interface SelectionMenuPluralLabels {
  */
 export interface SelectionMenuConfig {
   /**
+   * Controls the custom long-press copy menu on code blocks, tables, and
+   * block math. This does not affect the code-block header copy button or the
+   * system text-selection menu.
+   * @default { enabled: true }
+   * @platform android
+   */
+  blockContextMenu?: { enabled?: boolean };
+  /**
    * The system "Copy" item. It can't be hidden — only its label is configurable.
    * @default { label: "Copy" }
    */

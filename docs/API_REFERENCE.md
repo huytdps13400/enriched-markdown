@@ -446,6 +446,9 @@ Each item takes an object: `{ enabled }` toggles visibility (the system `copy` i
 
 ```ts
 interface SelectionMenuConfig {
+  /** Android code/table/math long-press popup. The code header copy button and
+   *  system text-selection menu are unaffected. @default { enabled: true } */
+  blockContextMenu?: { enabled?: boolean };
   /** System "Copy" item — can't be hidden, only relabeled. @default { label: "Copy" } */
   copy?: { label?: string };
   /** "Copy as Markdown" action. @default { enabled: true, label: "Copy as Markdown" } */
@@ -479,6 +482,7 @@ interface SelectionMenuPluralLabels {
   markdown={content}
   selectionMenuConfig={{
     // Hide an action:
+    blockContextMenu: { enabled: false },
     copyAsMarkdown: { enabled: false },
     // Localize the labels:
     copy: { label: t('copy') },

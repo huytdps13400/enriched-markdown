@@ -38,11 +38,16 @@ Use `selectionMenuConfig` to hide built-in selection menu actions while keeping 
 <EnrichedMarkdownText
   markdown={content}
   selectionMenuConfig={{
+    blockContextMenu: { enabled: false },
     copyAsMarkdown: { enabled: false },
     copyImageUrl: { enabled: false },
   }}
 />
 ```
+
+On Android, `blockContextMenu: { enabled: false }` disables the custom
+long-press popup on code blocks, tables, and block math. It leaves the
+code-block header copy button and the system text-selection menu unchanged.
 
 `EnrichedMarkdownTextInput` supports the same `{ enabled, label }` shape. In addition to `copyAsMarkdown`, the input's `selectionMenuConfig` exposes the built-in **Format** submenu, and `formatMenuConfig` controls the items inside it:
 

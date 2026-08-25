@@ -265,6 +265,7 @@ export interface ImageRequestHeaderInternal {
 }
 
 export interface SelectionMenuConfig {
+  blockContextMenu: boolean;
   copyAsMarkdown: boolean;
   copyImageUrl: boolean;
   copyLabel: string;

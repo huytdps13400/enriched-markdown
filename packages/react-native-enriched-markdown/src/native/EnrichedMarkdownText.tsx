@@ -5,6 +5,7 @@ import EnrichedMarkdownNativeComponent from '../EnrichedMarkdownNativeComponent'
 import { normalizeMarkdownStyle } from '../normalizeMarkdownStyle';
 import { resolveAccessibilityLabels } from '../accessibilityLabelDefaults';
 import {
+  normalizeBlockContextMenu,
   normalizeMenuItem,
   normalizeLegacyBooleanMenuItem,
 } from '../normalizeMenuItem';
@@ -249,6 +250,7 @@ export const EnrichedMarkdownText = ({
     // `as unknown` cast; the public type only exposes the object shape.
     const config = selectionMenuConfig as
       | {
+          blockContextMenu?: unknown;
           copy?: unknown;
           copyAsMarkdown?: unknown;
           copyImageUrl?: unknown;
@@ -278,6 +280,7 @@ export const EnrichedMarkdownText = ({
     )?.pluralLabels;
 
     return {
+      blockContextMenu: normalizeBlockContextMenu(config?.blockContextMenu),
       copyAsMarkdown: copyAsMarkdown.enabled,
       copyImageUrl: copyImageUrl.enabled,
       copyLabel: copy.label,
