@@ -180,6 +180,14 @@ class EnrichedMarkdownManager :
     view?.enableTaskListItemToggle = enableTaskListItemToggle
   }
 
+  @ReactProp(name = "enableBlockContextMenu", defaultBoolean = true)
+  override fun setEnableBlockContextMenu(
+    view: EnrichedMarkdown?,
+    enableBlockContextMenu: Boolean,
+  ) {
+    view?.enableBlockContextMenu = enableBlockContextMenu
+  }
+
   @ReactProp(name = "lineBreakStrategyIOS")
   override fun setLineBreakStrategyIOS(
     view: EnrichedMarkdown?,

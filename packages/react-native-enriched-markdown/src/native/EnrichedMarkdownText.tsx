@@ -5,7 +5,6 @@ import EnrichedMarkdownNativeComponent from '../EnrichedMarkdownNativeComponent'
 import { normalizeMarkdownStyle } from '../normalizeMarkdownStyle';
 import { resolveAccessibilityLabels } from '../accessibilityLabelDefaults';
 import {
-  normalizeBlockContextMenu,
   normalizeMenuItem,
   normalizeLegacyBooleanMenuItem,
 } from '../normalizeMenuItem';
@@ -120,6 +119,7 @@ export const EnrichedMarkdownText = ({
   onTaskListItemPress,
   enableTaskListItemToggle = true,
   onCopyPress,
+  enableBlockContextMenu = true,
   enableLinkPreview,
   selectable = true,
   md4cFlags = defaultMd4cFlags,
@@ -250,7 +250,6 @@ export const EnrichedMarkdownText = ({
     // `as unknown` cast; the public type only exposes the object shape.
     const config = selectionMenuConfig as
       | {
-          blockContextMenu?: unknown;
           copy?: unknown;
           copyAsMarkdown?: unknown;
           copyImageUrl?: unknown;
@@ -280,7 +279,6 @@ export const EnrichedMarkdownText = ({
     )?.pluralLabels;
 
     return {
-      blockContextMenu: normalizeBlockContextMenu(config?.blockContextMenu),
       copyAsMarkdown: copyAsMarkdown.enabled,
       copyImageUrl: copyImageUrl.enabled,
       copyLabel: copy.label,
@@ -307,6 +305,7 @@ export const EnrichedMarkdownText = ({
     onTaskListItemPress: handleTaskListItemPress,
     enableTaskListItemToggle,
     onCopyPress: handleCopyPress,
+    enableBlockContextMenu,
     enableLinkPreview: onLinkLongPress == null && (enableLinkPreview ?? true),
     selectable,
     md4cFlags: normalizedMd4cFlags,

@@ -23,7 +23,6 @@ private const val MENU_ITEM_CUSTOM_BASE = 2000
 private const val MENU_ITEM_CUSTOM_GROUP = 2001
 
 data class SelectionMenuConfig(
-  val blockContextMenu: Boolean = true,
   val copyAsMarkdown: Boolean = true,
   val copyImageUrl: Boolean = true,
   val copyLabel: String = "",

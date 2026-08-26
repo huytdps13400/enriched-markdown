@@ -67,14 +67,6 @@ export interface SelectionMenuPluralLabels {
  */
 export interface SelectionMenuConfig {
   /**
-   * Controls the custom long-press copy menu on code blocks, tables, and
-   * block math. This does not affect the code-block header copy button or the
-   * system text-selection menu.
-   * @default { enabled: true }
-   * @platform android
-   */
-  blockContextMenu?: { enabled?: boolean };
-  /**
    * The system "Copy" item. It can't be hidden — only its label is configurable.
    * @default { label: "Copy" }
    */
@@ -194,6 +186,15 @@ export interface EnrichedMarkdownTextProps extends Omit<ViewProps, 'style'> {
    * @platform ios, android, macos
    */
   onCopyPress?: (event: CopyPressEvent) => void;
+  /**
+   * Controls the long-press context menu on block views (code blocks, tables,
+   * and block math). When false, long-pressing a block does not open the copy
+   * popup. Does not affect the code-block header copy button, the
+   * VoiceOver/TalkBack copy action, or the system text-selection menu.
+   * @default true
+   * @platform ios, android, macos
+   */
+  enableBlockContextMenu?: boolean;
   /**
    * Controls whether the system link preview is shown on long press (iOS only).
    *

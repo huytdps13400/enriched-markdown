@@ -265,7 +265,6 @@ export interface ImageRequestHeaderInternal {
 }
 
 export interface SelectionMenuConfig {
-  blockContextMenu: boolean;
   copyAsMarkdown: boolean;
   copyImageUrl: boolean;
   copyLabel: string;
@@ -401,6 +400,11 @@ export interface NativeProps extends ViewProps {
    * action. Receives the copied code and its language.
    */
   onCopyPress?: CodegenTypes.BubblingEventHandler<CopyPressEvent>;
+  /**
+   * Controls the long-press copy menu on code blocks, tables, and block math.
+   * @default true
+   */
+  enableBlockContextMenu?: CodegenTypes.WithDefault<boolean, true>;
   /**
    * Controls whether the system link preview is shown on long press (iOS only).
    *

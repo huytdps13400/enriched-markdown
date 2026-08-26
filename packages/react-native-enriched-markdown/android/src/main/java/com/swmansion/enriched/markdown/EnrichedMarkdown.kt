@@ -120,6 +120,12 @@ class EnrichedMarkdown
           it.enableTaskListItemToggle = value
         }
       }
+    var enableBlockContextMenu: Boolean = true
+      set(value) {
+        if (field == value) return
+        field = value
+        pushBlockContextMenuToSegments()
+      }
 
     fun setMarkdownContent(markdown: String) {
       if (currentMarkdown == markdown) return
@@ -278,32 +284,48 @@ class EnrichedMarkdown
     }
 
     private fun pushCopyLabelsToBlockSegments() {
-      val blockContextMenu = selectionMenuConfig.blockContextMenu
       val copyLabel = selectionMenuConfig.copyLabel
       val copyAsMarkdownLabel = selectionMenuConfig.copyAsMarkdownLabel
       segmentViews.forEach { view ->
         when {
           view is TableContainerView -> {
-            view.blockContextMenuEnabled = blockContextMenu
             view.copyLabel = copyLabel
             view.copyAsMarkdownLabel = copyAsMarkdownLabel
           }
 
           view is CodeBlockContainerView -> {
-            view.blockContextMenuEnabled = blockContextMenu
             view.copyLabel = copyLabel
             view.copyAsMarkdownLabel = copyAsMarkdownLabel
           }
 
           isMathContainerView(view) -> {
             runCatching {
-              view.javaClass
-                .getMethod("setBlockContextMenuEnabled", Boolean::class.javaPrimitiveType)
-                .invoke(view, blockContextMenu)
               view.javaClass.getMethod("setCopyLabel", String::class.java).invoke(view, copyLabel)
               view.javaClass
                 .getMethod("setCopyAsMarkdownLabel", String::class.java)
                 .invoke(view, copyAsMarkdownLabel)
+            }
+          }
+        }
+      }
+    }
+
+    private fun pushBlockContextMenuToSegments() {
+      segmentViews.forEach { view ->
+        when {
+          view is TableContainerView -> {
+            view.blockContextMenuEnabled = enableBlockContextMenu
+          }
+
+          view is CodeBlockContainerView -> {
+            view.blockContextMenuEnabled = enableBlockContextMenu
+          }
+
+          isMathContainerView(view) -> {
+            runCatching {
+              view.javaClass
+                .getMethod("setBlockContextMenuEnabled", Boolean::class.javaPrimitiveType)
+                .invoke(view, enableBlockContextMenu)
             }
           }
         }
@@ -588,7 +610,7 @@ class EnrichedMarkdown
       segment: RenderedSegment.Table,
       style: StyleConfig,
     ) = TableContainerView(context, style).apply {
-      blockContextMenuEnabled = this@EnrichedMarkdown.selectionMenuConfig.blockContextMenu
+      blockContextMenuEnabled = this@EnrichedMarkdown.enableBlockContextMenu
       allowFontScaling = this@EnrichedMarkdown.allowFontScaling
       maxFontSizeMultiplier = this@EnrichedMarkdown.maxFontSizeMultiplier
       accessibilityLabels = this@EnrichedMarkdown.accessibilityLabels
@@ -603,7 +625,7 @@ class EnrichedMarkdown
       segment: RenderedSegment.CodeBlock,
       style: StyleConfig,
     ) = CodeBlockContainerView(context, style).apply {
-      blockContextMenuEnabled = this@EnrichedMarkdown.selectionMenuConfig.blockContextMenu
+      blockContextMenuEnabled = this@EnrichedMarkdown.enableBlockContextMenu
       copyLabel = this@EnrichedMarkdown.selectionMenuConfig.copyLabel
       copyAsMarkdownLabel = this@EnrichedMarkdown.selectionMenuConfig.copyAsMarkdownLabel
       onCopyPress = { code, language ->
@@ -631,7 +653,7 @@ class EnrichedMarkdown
         }
         resolvedClass
           .getMethod("setBlockContextMenuEnabled", Boolean::class.javaPrimitiveType)
-          .invoke(view, selectionMenuConfig.blockContextMenu)
+          .invoke(view, enableBlockContextMenu)
         resolvedClass
           .getMethod("setCopyLabel", String::class.java)
           .invoke(view, selectionMenuConfig.copyLabel)

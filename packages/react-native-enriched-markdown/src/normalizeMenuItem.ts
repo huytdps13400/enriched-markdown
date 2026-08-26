@@ -33,9 +33,6 @@ export const normalizeMenuItem = (
   };
 };
 
-export const normalizeBlockContextMenu = (raw: unknown): boolean =>
-  normalizeMenuItem(raw, true, '').enabled;
-
 export const normalizeLegacyBooleanMenuItem = (
   raw: unknown,
   parentProp: string,

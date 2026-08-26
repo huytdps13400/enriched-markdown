@@ -122,6 +122,24 @@ Only fires when `flavor="github"` — the copy button is part of the GitHub flav
 />
 ```
 
+### `enableBlockContextMenu`
+
+Controls the long-press copy popup on code blocks, tables, and block math.
+Setting it to `false` leaves the code-block header copy button, accessibility
+copy action, and system text-selection menu unchanged.
+
+| Type      | Default Value | Platform            |
+| --------- | ------------- | ------------------- |
+| `boolean` | `true`        | iOS, Android, macOS |
+
+```tsx
+<EnrichedMarkdownText
+  flavor="github"
+  markdown={content}
+  enableBlockContextMenu={false}
+/>
+```
+
 ### `enableLinkPreview`
 
 Controls the native link preview on long press (iOS only). Automatically set to `false` when `onLinkLongPress` is provided.
@@ -446,9 +464,6 @@ Each item takes an object: `{ enabled }` toggles visibility (the system `copy` i
 
 ```ts
 interface SelectionMenuConfig {
-  /** Android code/table/math long-press popup. The code header copy button and
-   *  system text-selection menu are unaffected. @default { enabled: true } */
-  blockContextMenu?: { enabled?: boolean };
   /** System "Copy" item — can't be hidden, only relabeled. @default { label: "Copy" } */
   copy?: { label?: string };
   /** "Copy as Markdown" action. @default { enabled: true, label: "Copy as Markdown" } */
@@ -482,7 +497,6 @@ interface SelectionMenuPluralLabels {
   markdown={content}
   selectionMenuConfig={{
     // Hide an action:
-    blockContextMenu: { enabled: false },
     copyAsMarkdown: { enabled: false },
     // Localize the labels:
     copy: { label: t('copy') },
