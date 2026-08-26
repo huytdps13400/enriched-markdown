@@ -65,7 +65,7 @@ class CodeBlockContainerView(
       copyButton.contentDescription = value
     }
   var copyAsMarkdownLabel: String = ""
-  var blockContextMenuEnabled: Boolean = true
+  var enableBlockContextMenu: Boolean = true
 
   var onCopyPress: ((code: String, language: String) -> Unit)? = null
 
@@ -246,7 +246,7 @@ class CodeBlockContainerView(
   // Returns whether a menu was shown, so the long-press listener only consumes
   // the event when there is one (a pending block has no menu yet).
   private fun showContextMenu(anchor: View): Boolean {
-    if (!blockContextMenuEnabled || pending) return false
+    if (!enableBlockContextMenu || pending) return false
     ContextMenuPopup.show(anchor, this) {
       item(ContextMenuPopup.Icon.COPY, copyLabel) { copyCode() }
       item(ContextMenuPopup.Icon.DOCUMENT, copyAsMarkdownLabel) { copyFencedMarkdown() }

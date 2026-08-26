@@ -314,17 +314,17 @@ class EnrichedMarkdown
       segmentViews.forEach { view ->
         when {
           view is TableContainerView -> {
-            view.blockContextMenuEnabled = enableBlockContextMenu
+            view.enableBlockContextMenu = enableBlockContextMenu
           }
 
           view is CodeBlockContainerView -> {
-            view.blockContextMenuEnabled = enableBlockContextMenu
+            view.enableBlockContextMenu = enableBlockContextMenu
           }
 
           isMathContainerView(view) -> {
             runCatching {
               view.javaClass
-                .getMethod("setBlockContextMenuEnabled", Boolean::class.javaPrimitiveType)
+                .getMethod("setEnableBlockContextMenu", Boolean::class.javaPrimitiveType)
                 .invoke(view, enableBlockContextMenu)
             }
           }
@@ -610,7 +610,7 @@ class EnrichedMarkdown
       segment: RenderedSegment.Table,
       style: StyleConfig,
     ) = TableContainerView(context, style).apply {
-      blockContextMenuEnabled = this@EnrichedMarkdown.enableBlockContextMenu
+      enableBlockContextMenu = this@EnrichedMarkdown.enableBlockContextMenu
       allowFontScaling = this@EnrichedMarkdown.allowFontScaling
       maxFontSizeMultiplier = this@EnrichedMarkdown.maxFontSizeMultiplier
       accessibilityLabels = this@EnrichedMarkdown.accessibilityLabels
@@ -625,7 +625,7 @@ class EnrichedMarkdown
       segment: RenderedSegment.CodeBlock,
       style: StyleConfig,
     ) = CodeBlockContainerView(context, style).apply {
-      blockContextMenuEnabled = this@EnrichedMarkdown.enableBlockContextMenu
+      enableBlockContextMenu = this@EnrichedMarkdown.enableBlockContextMenu
       copyLabel = this@EnrichedMarkdown.selectionMenuConfig.copyLabel
       copyAsMarkdownLabel = this@EnrichedMarkdown.selectionMenuConfig.copyAsMarkdownLabel
       onCopyPress = { code, language ->
@@ -652,7 +652,7 @@ class EnrichedMarkdown
             .invoke(view, accessibilityLabels)
         }
         resolvedClass
-          .getMethod("setBlockContextMenuEnabled", Boolean::class.javaPrimitiveType)
+          .getMethod("setEnableBlockContextMenu", Boolean::class.javaPrimitiveType)
           .invoke(view, enableBlockContextMenu)
         resolvedClass
           .getMethod("setCopyLabel", String::class.java)

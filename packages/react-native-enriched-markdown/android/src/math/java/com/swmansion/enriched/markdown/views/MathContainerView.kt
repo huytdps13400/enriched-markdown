@@ -40,7 +40,7 @@ class MathContainerView(
   // Set reflectively by EnrichedMarkdown (math is an optional module).
   var copyLabel: String = ""
   var copyAsMarkdownLabel: String = ""
-  var blockContextMenuEnabled: Boolean = true
+  var enableBlockContextMenu: Boolean = true
 
   override val segmentMarginTop: Int get() = mathStyle.marginTop.toInt()
   override val segmentMarginBottom: Int get() = mathStyle.marginBottom.toInt()
@@ -110,7 +110,7 @@ class MathContainerView(
   }
 
   private fun showContextMenu(anchor: View): Boolean {
-    if (!blockContextMenuEnabled) return false
+    if (!enableBlockContextMenu) return false
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     ContextMenuPopup.show(anchor, this) {
       item(ContextMenuPopup.Icon.COPY, copyLabel) {
