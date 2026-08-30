@@ -325,6 +325,7 @@ object MeasurementStore {
         highlight = props.getMapOrNull("md4cFlags").getBooleanOrDefault("highlight", false),
         hardSoftBreaks = props.getMapOrNull("md4cFlags").getBooleanOrDefault("hardSoftBreaks", false),
         preserveBlankLines = props.getMapOrNull("md4cFlags").getBooleanOrDefault("preserveBlankLines", false),
+        tables = props.getMapOrNull("md4cFlags").getBooleanOrDefault("tables", true),
       )
 
     val fontSize = getInitialFontSize(styleMap, context, allowFontScaling, fontScale, maxFontSizeMultiplier)
@@ -418,6 +419,7 @@ object MeasurementStore {
         highlight = props.getMapOrNull("md4cFlags").getBooleanOrDefault("highlight", false),
         hardSoftBreaks = props.getMapOrNull("md4cFlags").getBooleanOrDefault("hardSoftBreaks", false),
         preserveBlankLines = props.getMapOrNull("md4cFlags").getBooleanOrDefault("preserveBlankLines", false),
+        tables = props.getMapOrNull("md4cFlags").getBooleanOrDefault("tables", true),
       )
     val allowTrailingMargin = props.getBooleanOrDefault("allowTrailingMargin", false)
     val fontSize = getInitialFontSize(styleMap, context, allowFontScaling, fontScale, maxFontSizeMultiplier)

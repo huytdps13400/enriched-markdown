@@ -102,6 +102,18 @@ class ParserTest {
   }
 
   @Test
+  fun keepsTableSyntaxAsTextWhenTablesAreDisabled() {
+    val markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |"
+
+    val ast = requireNotNull(parser.parseMarkdown(markdown, Md4cFlags(tables = false)))
+
+    assertNull(ast.firstOfType(MarkdownASTNode.NodeType.Table))
+    val text = ast.allOfType(MarkdownASTNode.NodeType.Text).joinToString("\n") { it.content }
+    assertTrue(text.contains("| Model | Speed |"))
+    assertTrue(text.contains("| Claude | Fast |"))
+  }
+
+  @Test
   fun respectsUnderlineFlag() {
     val withUnderline =
       requireNotNull(

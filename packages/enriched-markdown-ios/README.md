@@ -198,12 +198,13 @@ public struct Md4cFlags: Equatable, Sendable {
   public var superscript: Bool
   public var subscript: Bool
   public var highlight: Bool
+  public var tables: Bool              // GFM table parsing (default true)
 
   public static let commonMark: Md4cFlags
 }
 ```
 
-`underline`, `hardSoftBreaks`, `preserveBlankLines`, and `permissiveAutolinks` affect rendering. The remaining flags gate parsing only — their content currently renders as plain text. Tables, task lists, and strikethrough are always enabled and need no flags.
+`underline`, `hardSoftBreaks`, `preserveBlankLines`, and `permissiveAutolinks` affect rendering. The remaining flags gate parsing only — their content currently renders as plain text. Tables are enabled by default and can be disabled with `tables: false`; task lists and strikethrough are always enabled.
 
 ### `.markdownTheme`
 

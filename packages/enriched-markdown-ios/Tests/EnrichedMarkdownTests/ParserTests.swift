@@ -144,6 +144,17 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(blankLine?.attribute("count"), "3")
     }
 
+    func testKeepsTableSyntaxAsTextWhenTablesAreDisabled() {
+        let markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |"
+
+        let ast = parser.parseMarkdown(markdown, flags: Md4cFlags(tables: false))
+
+        XCTAssertNil(ast.first(ofType: .table))
+        let text = ast.all(ofType: .text).map(\.content).joined(separator: "\n")
+        XCTAssertTrue(text.contains("| Model | Speed |"))
+        XCTAssertTrue(text.contains("| Claude | Fast |"))
+    }
+
     func testParsesDeeplyNestedBlockquotes() {
         let depth = 500
         let markdown = String(repeating: "> ", count: depth) + "deep"

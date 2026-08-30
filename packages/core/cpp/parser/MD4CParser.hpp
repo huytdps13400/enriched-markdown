@@ -15,6 +15,7 @@ struct Md4cFlags {
     bool permissiveAutolinks = true;
     bool hardSoftBreaks = false;
     bool preserveBlankLines = false;
+    bool tables = true;
 };
 
 class MD4CParser {
@@ -31,4 +32,3 @@ private:
 };
 
 } // namespace Markdown
-

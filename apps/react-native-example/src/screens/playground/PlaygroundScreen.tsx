@@ -60,6 +60,7 @@ const BLOCK_IMAGE_URI = Image.resolveAssetSource(
 const INLINE_IMAGE_URI = Image.resolveAssetSource(
   require('../../assets/logo_icon.png')
 ).uri;
+const COMMONMARK_PIPE_TABLE = '| Model | Speed |\n|---|---|\n| Claude | Fast |';
 
 export default function PlaygroundScreen() {
   const headerHeight = useHeaderHeight();
@@ -69,6 +70,7 @@ export default function PlaygroundScreen() {
   const [sizeMode, setSizeMode] = useState<'base' | 'max'>('base');
   const [hasSelection, setHasSelection] = useState(false);
   const [underlineEnabled, setUnderlineEnabled] = useState(true);
+  const [flavor, setFlavor] = useState<'github' | 'commonmark'>('github');
   const [setMarkdownModalVisible, setSetMarkdownModalVisible] = useState(false);
   const [rawInput, setRawInput] = useState('');
   const handleGetMarkdown = useCallback(async () => {
@@ -154,6 +156,19 @@ export default function PlaygroundScreen() {
               Underline
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              setFlavor((value) =>
+                value === 'github' ? 'commonmark' : 'github'
+              )
+            }
+            testID="flavor-button"
+          >
+            <Text style={styles.buttonText}>
+              Flavor: {flavor === 'github' ? 'GitHub' : 'CommonMark'}
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -180,6 +195,16 @@ export default function PlaygroundScreen() {
             testID="insert-inline-image-button"
           >
             <Text style={styles.buttonText}>Insert Inline Image</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              inputRef.current?.setValue(COMMONMARK_PIPE_TABLE);
+              setMarkdown(COMMONMARK_PIPE_TABLE);
+            }}
+            testID="insert-pipe-table-button"
+          >
+            <Text style={styles.buttonText}>Insert Pipe Table</Text>
           </TouchableOpacity>
         </View>
 
@@ -243,7 +268,7 @@ export default function PlaygroundScreen() {
             <EnrichedMarkdownText
               markdown={markdown}
               markdownStyle={MARKDOWN_STYLE}
-              flavor="github"
+              flavor={flavor}
               spoilerOverlay="solid"
               md4cFlags={{ underline: underlineEnabled, highlight: true }}
               onLinkPress={({ url }) =>

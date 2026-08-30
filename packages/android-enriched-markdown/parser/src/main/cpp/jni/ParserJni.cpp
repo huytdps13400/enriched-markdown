@@ -72,6 +72,7 @@ Md4cFlags JMd4cFlags::toCppFlags() const {
   static const auto permissiveAutolinksField = javaClassStatic()->getField<jboolean>("permissiveAutolinks");
   static const auto hardSoftBreaksField = javaClassStatic()->getField<jboolean>("hardSoftBreaks");
   static const auto preserveBlankLinesField = javaClassStatic()->getField<jboolean>("preserveBlankLines");
+  static const auto tablesField = javaClassStatic()->getField<jboolean>("tables");
 
   Md4cFlags flags;
   flags.underline = getFieldValue(underlineField) == JNI_TRUE;
@@ -82,6 +83,7 @@ Md4cFlags JMd4cFlags::toCppFlags() const {
   flags.permissiveAutolinks = getFieldValue(permissiveAutolinksField) == JNI_TRUE;
   flags.hardSoftBreaks = getFieldValue(hardSoftBreaksField) == JNI_TRUE;
   flags.preserveBlankLines = getFieldValue(preserveBlankLinesField) == JNI_TRUE;
+  flags.tables = getFieldValue(tablesField) == JNI_TRUE;
   return flags;
 }
 

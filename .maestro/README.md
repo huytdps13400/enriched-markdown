@@ -117,6 +117,7 @@ Apply to tests that exercise the corresponding element. Many flows wear multiple
 | `task_list` | GFM task lists (checkboxes). Requires `flavor="github"`. |
 | `code_block` | Fenced code blocks. |
 | `table` | GFM tables. Requires `flavor="github"`. |
+| `commonmark` | CommonMark-only behavior and literal fallback coverage. |
 | `image` | Block and inline images. |
 | `math` | LaTeX math blocks and inline (`$…$`, `$$…$$`). Requires `latexMath` flag. |
 | `thematic_break` | Horizontal rules (`---`). |

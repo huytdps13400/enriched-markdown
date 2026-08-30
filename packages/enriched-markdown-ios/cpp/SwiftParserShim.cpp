@@ -31,7 +31,8 @@ const Markdown::MarkdownASTNode *asNode(const void *node) {
 extern "C" {
 
 EMCParseResult *em_parse_markdown(const char *markdown, int underline, int latexMath, int superscript, int subscript,
-                                  int highlight, int hardSoftBreaks, int permissiveAutolinks, int preserveBlankLines) {
+                                  int highlight, int hardSoftBreaks, int permissiveAutolinks, int preserveBlankLines,
+                                  int tables) {
   auto *result = new (std::nothrow) EMCParseResult();
   if (!result) {
     return nullptr;
@@ -46,6 +47,7 @@ EMCParseResult *em_parse_markdown(const char *markdown, int underline, int latex
   flags.hardSoftBreaks = hardSoftBreaks != 0;
   flags.permissiveAutolinks = permissiveAutolinks != 0;
   flags.preserveBlankLines = preserveBlankLines != 0;
+  flags.tables = tables != 0;
 
   Markdown::MD4CParser parser;
   result->root = parser.parse(markdown ? std::string(markdown) : "", flags);

@@ -360,6 +360,11 @@ export interface Md4cFlagsInternal {
    * @default false
    */
   preserveBlankLines: boolean;
+  /**
+   * Internal flavor switch for the GFM tables extension.
+   * @default false for the CommonMark flavor
+   */
+  tables: boolean;
 }
 
 interface StreamingConfigInternal {

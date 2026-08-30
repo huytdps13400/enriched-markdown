@@ -601,7 +601,10 @@ std::shared_ptr<MarkdownASTNode> MD4CParser::parse(const std::string &markdown, 
   impl_->reset(estimatedDepth);
   impl_->inputText = markdown.c_str();
 
-  unsigned flags = MD_FLAG_NOHTML | MD_FLAG_STRIKETHROUGH | MD_FLAG_TABLES | MD_FLAG_TASKLISTS | MD_FLAG_SPOILERS;
+  unsigned flags = MD_FLAG_NOHTML | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS | MD_FLAG_SPOILERS;
+  if (md4cFlags.tables) {
+    flags |= MD_FLAG_TABLES;
+  }
   if (md4cFlags.permissiveAutolinks) {
     flags |= MD_FLAG_PERMISSIVEAUTOLINKS;
   }

@@ -15,6 +15,7 @@ extern MarkdownASTNode *parseMarkdownWithCppParser(NSString *markdown, ENRMMd4cF
     _highlight = NO;
     _hardSoftBreaks = NO;
     _preserveBlankLines = NO;
+    _tables = YES;
   }
   return self;
 }
@@ -34,6 +35,7 @@ extern MarkdownASTNode *parseMarkdownWithCppParser(NSString *markdown, ENRMMd4cF
   copy.highlight = self.highlight;
   copy.hardSoftBreaks = self.hardSoftBreaks;
   copy.preserveBlankLines = self.preserveBlankLines;
+  copy.tables = self.tables;
   return copy;
 }
 

@@ -359,6 +359,11 @@ export interface Md4cFlagsInternal {
    * @default false
    */
   preserveBlankLines: boolean;
+  /**
+   * Internal flavor switch for the GFM tables extension.
+   * @default true for the GitHub flavor
+   */
+  tables: boolean;
 }
 
 interface StreamingConfigInternal {

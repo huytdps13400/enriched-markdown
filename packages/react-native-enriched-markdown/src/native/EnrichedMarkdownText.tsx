@@ -163,8 +163,9 @@ export const EnrichedMarkdownText = ({
       highlight: md4cFlags.highlight ?? false,
       hardSoftBreaks: md4cFlags.hardSoftBreaks ?? false,
       preserveBlankLines: md4cFlags.preserveBlankLines ?? false,
+      tables: flavor === 'github',
     }),
-    [md4cFlags]
+    [flavor, md4cFlags]
   );
 
   const contextMenuCallbacksRef = useRef<
