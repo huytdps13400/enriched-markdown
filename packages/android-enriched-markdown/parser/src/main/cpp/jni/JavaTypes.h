@@ -33,7 +33,7 @@ struct JParser : facebook::jni::JavaClass<JParser> {
   static facebook::jni::local_ref<JMarkdownASTNode>
   nativeParseMarkdown(facebook::jni::alias_ref<facebook::jni::JClass> clazz,
                       facebook::jni::alias_ref<facebook::jni::JString> markdown,
-                      facebook::jni::alias_ref<JMd4cFlags> flags, jboolean isGFM);
+                      facebook::jni::alias_ref<JMd4cFlags> flags);
 
   static void registerNatives();
 };

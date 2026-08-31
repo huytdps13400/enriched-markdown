@@ -86,7 +86,7 @@ Md4cFlags JMd4cFlags::toCppFlags() const {
 }
 
 local_ref<JMarkdownASTNode> JParser::nativeParseMarkdown(alias_ref<JClass> /* clazz */, alias_ref<JString> markdown,
-                                                         alias_ref<JMd4cFlags> flags, jboolean isGFM) {
+                                                         alias_ref<JMd4cFlags> flags) {
   if (!markdown) {
     LOGE("Markdown string is null");
     return nullptr;
@@ -97,7 +97,8 @@ local_ref<JMarkdownASTNode> JParser::nativeParseMarkdown(alias_ref<JClass> /* cl
     Md4cFlags md4cFlags = flags ? flags->toCppFlags() : Md4cFlags{};
 
     MD4CParser parser;
-    auto ast = parser.parse(markdownStr, md4cFlags, isGFM == JNI_TRUE);
+    // TODO: when implementing flavor support, pass isGFM based on the flavor instead of the default.
+    auto ast = parser.parse(markdownStr, md4cFlags);
 
     if (!ast) {
       LOGE("Parser returned null AST");

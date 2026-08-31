@@ -203,7 +203,7 @@ public struct Md4cFlags: Equatable, Sendable {
 }
 ```
 
-`underline`, `hardSoftBreaks`, `preserveBlankLines`, and `permissiveAutolinks` affect rendering. The remaining flags gate parsing only — their content currently renders as plain text. Pass `isGFM: false` to `parseMarkdown` to disable the GFM table, task-list, and strikethrough extensions together.
+`underline`, `hardSoftBreaks`, `preserveBlankLines`, and `permissiveAutolinks` affect rendering. The remaining flags gate parsing only — their content currently renders as plain text. Tables, task lists, and strikethrough are always enabled and need no flags.
 
 ### `.markdownTheme`
 

@@ -31,8 +31,7 @@ const Markdown::MarkdownASTNode *asNode(const void *node) {
 extern "C" {
 
 EMCParseResult *em_parse_markdown(const char *markdown, int underline, int latexMath, int superscript, int subscript,
-                                  int highlight, int hardSoftBreaks, int permissiveAutolinks, int preserveBlankLines,
-                                  int isGFM) {
+                                  int highlight, int hardSoftBreaks, int permissiveAutolinks, int preserveBlankLines) {
   auto *result = new (std::nothrow) EMCParseResult();
   if (!result) {
     return nullptr;
@@ -49,7 +48,8 @@ EMCParseResult *em_parse_markdown(const char *markdown, int underline, int latex
   flags.preserveBlankLines = preserveBlankLines != 0;
 
   Markdown::MD4CParser parser;
-  result->root = parser.parse(markdown ? std::string(markdown) : "", flags, isGFM != 0);
+  // TODO: when implementing flavor support, pass isGFM based on the flavor instead of the default.
+  result->root = parser.parse(markdown ? std::string(markdown) : "", flags);
   return result;
 }
 

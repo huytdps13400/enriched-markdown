@@ -5,9 +5,8 @@ public final class Parser: Sendable {
 
     public func parseMarkdown(
         _ markdown: String,
-        flags: Md4cFlags = .commonMark,
-        isGFM: Bool = true
+        flags: Md4cFlags = .commonMark
     ) -> MarkdownASTNode {
-        MarkdownParserBridge.parse(markdown, flags: flags, isGFM: isGFM)
+        MarkdownParserBridge.parse(markdown, flags: flags)
     }
 }

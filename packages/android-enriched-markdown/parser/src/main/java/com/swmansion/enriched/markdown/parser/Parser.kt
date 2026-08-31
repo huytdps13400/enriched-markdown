@@ -31,7 +31,6 @@ class Parser {
     private external fun nativeParseMarkdown(
       markdown: String,
       flags: Md4cFlags,
-      isGFM: Boolean,
     ): MarkdownASTNode?
 
     val shared: Parser = Parser()
@@ -40,14 +39,13 @@ class Parser {
   fun parseMarkdown(
     markdown: String,
     flags: Md4cFlags = Md4cFlags.DEFAULT,
-    isGFM: Boolean = true,
   ): MarkdownASTNode? {
     if (markdown.isBlank()) {
       return null
     }
 
     try {
-      val ast = nativeParseMarkdown(markdown, flags, isGFM)
+      val ast = nativeParseMarkdown(markdown, flags)
       if (ast != null) {
         return ast
       }
