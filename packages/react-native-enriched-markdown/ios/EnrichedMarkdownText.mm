@@ -71,6 +71,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
   NSString *_renderedMarkdown;
   StyleConfig *_config;
   ENRMMd4cFlags *_md4cFlags;
+  BOOL _isGFM;
 
   ENRMAsyncRenderCoordinator *_renderCoordinator;
 
@@ -135,7 +136,6 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
   flags.highlight = props.highlight;
   flags.hardSoftBreaks = props.hardSoftBreaks;
   flags.preserveBlankLines = props.preserveBlankLines;
-  flags.tables = props.tables;
   return flags;
 }
 
@@ -232,6 +232,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
     self.backgroundColor = [RCTUIColor clearColor];
     _parser = [[ENRMMarkdownParser alloc] init];
     _md4cFlags = [EnrichedMarkdownText flagsFromProps:defaultProps->md4cFlags];
+    _isGFM = defaultProps->isGFM;
 
     _renderCoordinator =
         [[ENRMAsyncRenderCoordinator alloc] initWithQueueLabel:"com.swmansion.enriched.markdown.render"];
@@ -343,6 +344,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
   StyleConfig *config = [_config copy];
   ENRMMarkdownParser *parser = _parser;
   ENRMMd4cFlags *md4cFlags = [_md4cFlags copy];
+  BOOL isGFM = _isGFM;
 
   BOOL allowFontScaling = _fontScaleObserver.allowFontScaling;
   CGFloat maxFontSizeMultiplier = _maxFontSizeMultiplier;
@@ -355,7 +357,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
 
   [_renderCoordinator
       scheduleRender:^BOOL {
-        MarkdownASTNode *ast = [parser parseMarkdown:markdownString flags:md4cFlags];
+        MarkdownASTNode *ast = [parser parseMarkdown:markdownString flags:md4cFlags isGFM:isGFM];
         if (!ast)
           return NO;
 
@@ -374,7 +376,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
 
 - (NSMutableAttributedString *)parseAndRenderMarkdown:(NSString *)markdownString
 {
-  MarkdownASTNode *ast = [_parser parseMarkdown:markdownString flags:_md4cFlags];
+  MarkdownASTNode *ast = [_parser parseMarkdown:markdownString flags:_md4cFlags isGFM:_isGFM];
   if (!ast) {
     return nil;
   }
@@ -562,9 +564,14 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
       newViewProps.md4cFlags.latexMath != oldViewProps.md4cFlags.latexMath ||
       newViewProps.md4cFlags.highlight != oldViewProps.md4cFlags.highlight ||
       newViewProps.md4cFlags.hardSoftBreaks != oldViewProps.md4cFlags.hardSoftBreaks ||
-      newViewProps.md4cFlags.preserveBlankLines != oldViewProps.md4cFlags.preserveBlankLines ||
-      newViewProps.md4cFlags.tables != oldViewProps.md4cFlags.tables) {
+      newViewProps.md4cFlags.preserveBlankLines != oldViewProps.md4cFlags.preserveBlankLines) {
     _md4cFlags = [EnrichedMarkdownText flagsFromProps:newViewProps.md4cFlags];
+    _forceHeightUpdateOnNextRender = YES;
+    _dirtyFlags |= ENRMDirtyRender;
+  }
+
+  if (newViewProps.isGFM != oldViewProps.isGFM) {
+    _isGFM = newViewProps.isGFM;
     _forceHeightUpdateOnNextRender = YES;
     _dirtyFlags |= ENRMDirtyRender;
   }
@@ -684,6 +691,7 @@ typedef NS_OPTIONS(NSUInteger, ENRMDirtyFlags) {
   _renderedMarkdown = nil;
   _config = nil;
   _md4cFlags = [EnrichedMarkdownText flagsFromProps:resetProps->md4cFlags];
+  _isGFM = resetProps->isGFM;
   _maxFontSizeMultiplier = 0;
   _lastElementMarginBottom = 0;
   _allowTrailingMargin = NO;

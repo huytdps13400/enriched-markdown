@@ -105,7 +105,6 @@ fun parseMd4cFlags(flags: ReadableMap?): Md4cFlags =
     highlight = flags?.getBoolean("highlight") ?: false,
     hardSoftBreaks = flags?.getBoolean("hardSoftBreaks") ?: false,
     preserveBlankLines = flags?.getBoolean("preserveBlankLines") ?: false,
-    tables = flags?.getBoolean("tables") ?: true,
   )
 
 fun parseContextMenuItems(value: ReadableArray?): List<String> =

@@ -72,7 +72,6 @@ Md4cFlags JMd4cFlags::toCppFlags() const {
   static const auto permissiveAutolinksField = javaClassStatic()->getField<jboolean>("permissiveAutolinks");
   static const auto hardSoftBreaksField = javaClassStatic()->getField<jboolean>("hardSoftBreaks");
   static const auto preserveBlankLinesField = javaClassStatic()->getField<jboolean>("preserveBlankLines");
-  static const auto tablesField = javaClassStatic()->getField<jboolean>("tables");
 
   Md4cFlags flags;
   flags.underline = getFieldValue(underlineField) == JNI_TRUE;
@@ -83,12 +82,11 @@ Md4cFlags JMd4cFlags::toCppFlags() const {
   flags.permissiveAutolinks = getFieldValue(permissiveAutolinksField) == JNI_TRUE;
   flags.hardSoftBreaks = getFieldValue(hardSoftBreaksField) == JNI_TRUE;
   flags.preserveBlankLines = getFieldValue(preserveBlankLinesField) == JNI_TRUE;
-  flags.tables = getFieldValue(tablesField) == JNI_TRUE;
   return flags;
 }
 
 local_ref<JMarkdownASTNode> JParser::nativeParseMarkdown(alias_ref<JClass> /* clazz */, alias_ref<JString> markdown,
-                                                         alias_ref<JMd4cFlags> flags) {
+                                                         alias_ref<JMd4cFlags> flags, jboolean isGFM) {
   if (!markdown) {
     LOGE("Markdown string is null");
     return nullptr;
@@ -99,7 +97,7 @@ local_ref<JMarkdownASTNode> JParser::nativeParseMarkdown(alias_ref<JClass> /* cl
     Md4cFlags md4cFlags = flags ? flags->toCppFlags() : Md4cFlags{};
 
     MD4CParser parser;
-    auto ast = parser.parse(markdownStr, md4cFlags);
+    auto ast = parser.parse(markdownStr, md4cFlags, isGFM == JNI_TRUE);
 
     if (!ast) {
       LOGE("Parser returned null AST");

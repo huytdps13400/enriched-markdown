@@ -102,12 +102,14 @@ class ParserTest {
   }
 
   @Test
-  fun keepsTableSyntaxAsTextWhenTablesAreDisabled() {
-    val markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |"
+  fun disablesGfmExtensionsForCommonMark() {
+    val markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |\n\n~~done~~\n\n- [x] task"
 
-    val ast = requireNotNull(parser.parseMarkdown(markdown, Md4cFlags(tables = false)))
+    val ast = requireNotNull(parser.parseMarkdown(markdown, isGFM = false))
 
     assertNull(ast.firstOfType(MarkdownASTNode.NodeType.Table))
+    assertNull(ast.firstOfType(MarkdownASTNode.NodeType.Strikethrough))
+    assertNull(ast.allOfType(MarkdownASTNode.NodeType.ListItem).firstOrNull { it.getAttribute("isTask") == "true" })
     val text = ast.allOfType(MarkdownASTNode.NodeType.Text).joinToString("\n") { it.content }
     assertTrue(text.contains("| Model | Speed |"))
     assertTrue(text.contains("| Claude | Fast |"))

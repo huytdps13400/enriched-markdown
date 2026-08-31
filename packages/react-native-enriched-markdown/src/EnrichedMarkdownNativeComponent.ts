@@ -359,11 +359,6 @@ export interface Md4cFlagsInternal {
    * @default false
    */
   preserveBlankLines: boolean;
-  /**
-   * Internal flavor switch for the GFM tables extension.
-   * @default true for the GitHub flavor
-   */
-  tables: boolean;
 }
 
 interface StreamingConfigInternal {
@@ -476,6 +471,8 @@ export interface NativeProps extends ViewProps {
    * Controls how the markdown parser interprets certain syntax.
    */
   md4cFlags: Md4cFlagsInternal;
+  /** Enables the GFM table, strikethrough, and task-list extensions. */
+  isGFM?: CodegenTypes.WithDefault<boolean, true>;
   /**
    * Specifies whether fonts should scale to respect Text Size accessibility settings.
    * When false, text will not scale with the user's accessibility settings.

@@ -2,7 +2,7 @@ import EnrichedMarkdownCppShim
 import Foundation
 
 enum MarkdownParserBridge {
-    static func parse(_ markdown: String, flags: Md4cFlags) -> MarkdownASTNode {
+    static func parse(_ markdown: String, flags: Md4cFlags, isGFM: Bool) -> MarkdownASTNode {
         if isBlank(markdown) {
             return MarkdownASTNode(type: .document)
         }
@@ -18,7 +18,7 @@ enum MarkdownParserBridge {
                 flags.hardSoftBreaks ? 1 : 0,
                 flags.permissiveAutolinks ? 1 : 0,
                 flags.preserveBlankLines ? 1 : 0,
-                flags.tables ? 1 : 0
+                isGFM ? 1 : 0
             ) else {
                 return MarkdownASTNode(type: .document)
             }

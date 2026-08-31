@@ -163,9 +163,8 @@ export const EnrichedMarkdownText = ({
       highlight: md4cFlags.highlight ?? false,
       hardSoftBreaks: md4cFlags.hardSoftBreaks ?? false,
       preserveBlankLines: md4cFlags.preserveBlankLines ?? false,
-      tables: flavor === 'github',
     }),
-    [flavor, md4cFlags]
+    [md4cFlags]
   );
 
   const contextMenuCallbacksRef = useRef<
@@ -325,6 +324,7 @@ export const EnrichedMarkdownText = ({
     enableLinkPreview: onLinkLongPress == null && (enableLinkPreview ?? true),
     selectable,
     md4cFlags: normalizedMd4cFlags,
+    isGFM: flavor === 'github',
     allowFontScaling,
     maxFontSizeMultiplier,
     allowTrailingMargin,

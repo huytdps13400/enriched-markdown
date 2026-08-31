@@ -190,10 +190,8 @@ static jobject createJavaNode(JNIEnv *env, std::shared_ptr<MarkdownASTNode> node
 
 extern "C" {
 
-JNIEXPORT jobject JNICALL Java_com_swmansion_enriched_markdown_parser_Parser_nativeParseMarkdown(JNIEnv *env,
-                                                                                                 jobject /* this */,
-                                                                                                 jstring markdown,
-                                                                                                 jobject flags) {
+JNIEXPORT jobject JNICALL Java_com_swmansion_enriched_markdown_parser_Parser_nativeParseMarkdown(
+    JNIEnv *env, jobject /* this */, jstring markdown, jobject flags, jboolean isGFM) {
   if (!markdown) {
     LOGE("Markdown string is null");
     return nullptr;
@@ -243,16 +241,12 @@ JNIEXPORT jobject JNICALL Java_com_swmansion_enriched_markdown_parser_Parser_nat
         if (preserveBlankLinesField) {
           md4cFlags.preserveBlankLines = env->GetBooleanField(flags, preserveBlankLinesField) == JNI_TRUE;
         }
-        jfieldID tablesField = env->GetFieldID(flagsClass, "tables", "Z");
-        if (tablesField) {
-          md4cFlags.tables = env->GetBooleanField(flags, tablesField) == JNI_TRUE;
-        }
         env->DeleteLocalRef(flagsClass);
       }
     }
 
     MD4CParser parser;
-    auto ast = parser.parse(std::string(markdownStr), md4cFlags);
+    auto ast = parser.parse(std::string(markdownStr), md4cFlags, isGFM == JNI_TRUE);
 
     env->ReleaseStringUTFChars(markdown, markdownStr);
 

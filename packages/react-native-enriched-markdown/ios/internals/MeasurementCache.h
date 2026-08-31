@@ -42,7 +42,6 @@ struct MeasurementCacheKey {
   bool md4cFlagsLatexMath;
   bool md4cFlagsHardSoftBreaks;
   bool md4cFlagsPreserveBlankLines;
-  bool md4cFlagsTables;
   size_t styleFingerprint;
   CGFloat fontScale;
   MarkdownFlavor flavor;
@@ -53,14 +52,13 @@ struct MeasurementCacheKey {
   {
     return std::tie(markdown, maxWidth, allowTrailingMargin, allowFontScaling, maxFontSizeMultiplier,
                     md4cFlagsUnderline, md4cFlagsSuperscript, md4cFlagsSubscript, md4cFlagsHighlight,
-                    md4cFlagsLatexMath, md4cFlagsHardSoftBreaks, md4cFlagsPreserveBlankLines, md4cFlagsTables,
-                    styleFingerprint, fontScale, flavor, lineBreakStrategyIOS, writingDirection) ==
+                    md4cFlagsLatexMath, md4cFlagsHardSoftBreaks, md4cFlagsPreserveBlankLines, styleFingerprint,
+                    fontScale, flavor, lineBreakStrategyIOS, writingDirection) ==
            std::tie(other.markdown, other.maxWidth, other.allowTrailingMargin, other.allowFontScaling,
                     other.maxFontSizeMultiplier, other.md4cFlagsUnderline, other.md4cFlagsSuperscript,
                     other.md4cFlagsSubscript, other.md4cFlagsHighlight, other.md4cFlagsLatexMath,
-                    other.md4cFlagsHardSoftBreaks, other.md4cFlagsPreserveBlankLines, other.md4cFlagsTables,
-                    other.styleFingerprint, other.fontScale, other.flavor, other.lineBreakStrategyIOS,
-                    other.writingDirection);
+                    other.md4cFlagsHardSoftBreaks, other.md4cFlagsPreserveBlankLines, other.styleFingerprint,
+                    other.fontScale, other.flavor, other.lineBreakStrategyIOS, other.writingDirection);
   }
 };
 
@@ -80,7 +78,6 @@ struct MeasurementCacheKeyHash {
     HashUtils::hash_one(h, key.md4cFlagsLatexMath);
     HashUtils::hash_one(h, key.md4cFlagsHardSoftBreaks);
     HashUtils::hash_one(h, key.md4cFlagsPreserveBlankLines);
-    HashUtils::hash_one(h, key.md4cFlagsTables);
     HashUtils::hash_one(h, key.styleFingerprint);
     HashUtils::hash_one(h, key.fontScale);
     HashUtils::hash_one(h, static_cast<uint8_t>(key.flavor));
@@ -167,7 +164,6 @@ inline MeasurementCacheKey buildMeasurementCacheKey(const PropsType &props, CGFl
       .md4cFlagsLatexMath = props.md4cFlags.latexMath,
       .md4cFlagsHardSoftBreaks = props.md4cFlags.hardSoftBreaks,
       .md4cFlagsPreserveBlankLines = props.md4cFlags.preserveBlankLines,
-      .md4cFlagsTables = props.md4cFlags.tables,
       .styleFingerprint = computeStyleFingerprint(props.markdownStyle),
       .fontScale = fontScale,
       .flavor = flavor,

@@ -144,12 +144,14 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(blankLine?.attribute("count"), "3")
     }
 
-    func testKeepsTableSyntaxAsTextWhenTablesAreDisabled() {
-        let markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |"
+    func testDisablesGFMExtensionsForCommonMark() {
+        let markdown = "| Model | Speed |\n|---|---|\n| Claude | Fast |\n\n~~done~~\n\n- [x] task"
 
-        let ast = parser.parseMarkdown(markdown, flags: Md4cFlags(tables: false))
+        let ast = parser.parseMarkdown(markdown, isGFM: false)
 
         XCTAssertNil(ast.first(ofType: .table))
+        XCTAssertNil(ast.first(ofType: .strikethrough))
+        XCTAssertNil(ast.all(ofType: .listItem).first { $0.attribute("isTask") == "true" })
         let text = ast.all(ofType: .text).map(\.content).joined(separator: "\n")
         XCTAssertTrue(text.contains("| Model | Speed |"))
         XCTAssertTrue(text.contains("| Claude | Fast |"))

@@ -50,7 +50,7 @@ it('forwards md4cFlags.preserveBlankLines to native when enabled', () => {
   expect(nativeView.props.md4cFlags.preserveBlankLines).toBe(true);
 });
 
-it('disables GFM table parsing for the commonmark flavor', () => {
+it('disables GFM extensions for the commonmark flavor', () => {
   const nativeView = renderNative(
     <EnrichedMarkdownText
       markdown={'| Model | Speed |\n|---|---|\n| Claude | Fast |'}
@@ -58,10 +58,11 @@ it('disables GFM table parsing for the commonmark flavor', () => {
     />
   );
 
-  expect(nativeView.props.md4cFlags.tables).toBe(false);
+  expect(nativeView.props.isGFM).toBe(false);
+  expect(nativeView.props.md4cFlags).not.toHaveProperty('tables');
 });
 
-it('enables GFM table parsing for the github flavor', () => {
+it('enables GFM extensions for the github flavor', () => {
   const nativeView = renderNative(
     <EnrichedMarkdownText
       markdown={'| Model | Speed |\n|---|---|\n| Claude | Fast |'}
@@ -69,5 +70,6 @@ it('enables GFM table parsing for the github flavor', () => {
     />
   );
 
-  expect(nativeView.props.md4cFlags.tables).toBe(true);
+  expect(nativeView.props.isGFM).toBe(true);
+  expect(nativeView.props.md4cFlags).not.toHaveProperty('tables');
 });

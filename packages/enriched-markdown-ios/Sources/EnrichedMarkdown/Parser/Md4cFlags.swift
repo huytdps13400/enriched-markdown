@@ -7,7 +7,6 @@ public struct Md4cFlags: Sendable, Equatable {
     public var hardSoftBreaks: Bool
     public var permissiveAutolinks: Bool
     public var preserveBlankLines: Bool
-    public var tables: Bool
 
     public init(
         underline: Bool = false,
@@ -17,8 +16,7 @@ public struct Md4cFlags: Sendable, Equatable {
         highlight: Bool = false,
         hardSoftBreaks: Bool = false,
         permissiveAutolinks: Bool = true,
-        preserveBlankLines: Bool = false,
-        tables: Bool = true
+        preserveBlankLines: Bool = false
     ) {
         self.underline = underline
         self.latexMath = latexMath
@@ -28,7 +26,6 @@ public struct Md4cFlags: Sendable, Equatable {
         self.hardSoftBreaks = hardSoftBreaks
         self.permissiveAutolinks = permissiveAutolinks
         self.preserveBlankLines = preserveBlankLines
-        self.tables = tables
     }
 
     public static let commonMark = Md4cFlags()
